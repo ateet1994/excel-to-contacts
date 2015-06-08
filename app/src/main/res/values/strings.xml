@@ -14,4 +14,5 @@
     <string name="title_activity_file_picker">FilePickerActivity</string>
     <string name="about">Developed by Ateet\nateet6594@gmail.com\nHindustan University</string>
     <string name="help">The application reqiures that the data be entered in the format shown in the image below.\n\nThe column format is as follows:\n\"Name\", \"Phone Number\", \"Extension Number\", \"Email Address\".\n\nThe Name and Phone fields should not be empty.\nExtension and Email fields can be empty.\n</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 </resources>

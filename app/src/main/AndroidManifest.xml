@@ -31,11 +31,23 @@
         </activity>
         <activity
             android:name=".DisplayContact"
-            android:label="@string/title_activity_display_contact" >
+            android:label="@string/title_activity_display_contact"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ateet.excel.MainActivity" />
         </activity>
         <activity
             android:name=".FilePickerActivity"
             android:label="@string/title_activity_file_picker" >
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.ateet.excel.MainActivity" />
         </activity>
     </application>
 
