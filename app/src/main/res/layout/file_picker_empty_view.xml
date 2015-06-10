@@ -7,8 +7,9 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:text="No files or directories"
-        android:background="@android:drawable/toast_frame"
+        android:text=
+            "No files or directories
+        Only .xls files are shown"
         android:textSize="28sp"
         android:gravity="center_vertical|center_horizontal"/>
 </LinearLayout>
