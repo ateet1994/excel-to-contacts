@@ -17,6 +17,10 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COLUMN_PHONE = "phone";
     public static final String COLUMN_EMAIL = "email";
 
+    public static final int COL_NAME = 0;
+    public static final int COL_PHONE = 1;
+    public static final int COL_EMAIL = 2;
+
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
