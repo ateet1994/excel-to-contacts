@@ -62,20 +62,13 @@ public class MainActivity extends ActionBarActivity {
     private static final int CREATE_CONTACT = 1;
     private static final int EDIT_CONTACT = 2;
     private static final int REQUEST_PICK_FILE = 3;
-
     private DBHelper db;
-    private String excelFile;
-
-
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-
         db = new DBHelper(this);
-
-
         db.getAllContacts(array_list, listId);
         arrayAdapter =
                 new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, array_list);
@@ -192,12 +185,13 @@ public class MainActivity extends ActionBarActivity {
                         break;
                     case REQUEST_PICK_FILE:
                         if(data.hasExtra(FilePickerActivity.EXTRA_FILE_PATH)) {
+                            String excelFile;
                             excelFile = new File(data.getStringExtra(FilePickerActivity.EXTRA_FILE_PATH)).getPath();
 
-                            if (excelFile == null) {
-                                Toast.makeText(getApplicationContext(), "Select a file", Toast.LENGTH_SHORT).show();
-                                return;
-                            }
+//                            if (excelFile == null) {
+//                                Toast.makeText(getApplicationContext(), "Select a file", Toast.LENGTH_SHORT).show();
+//                                return;
+//                            }
                             Toast.makeText(getApplicationContext(), excelFile, Toast.LENGTH_SHORT).show();
                             readXls(MainActivity.this, excelFile);
                             updateList();

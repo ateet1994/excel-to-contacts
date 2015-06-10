@@ -9,6 +9,8 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,17 +19,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-/**
- *
- * @author pankaj
- *
- */
 public class FilePickerActivity extends ListActivity {
 
     public final static String EXTRA_FILE_PATH = "file_path";
     public final static String EXTRA_SHOW_HIDDEN_FILES = "show_hidden_files";
     public final static String EXTRA_ACCEPTED_FILE_EXTENSIONS = "accepted_file_extensions";
     private final static String DEFAULT_INITIAL_DIRECTORY = "/";
+    private File mParentToStorage = Environment.getExternalStorageDirectory().getParentFile();
 
     protected File mDirectory;
     protected ArrayList<File> mFiles;
@@ -107,9 +105,11 @@ public class FilePickerActivity extends ListActivity {
 
     @Override
     public void onBackPressed() {
-        if(mDirectory.getParentFile() != null) {
+        if(!mDirectory.getParentFile().equals(mParentToStorage)) {
             // Go to parent directory
             mDirectory = mDirectory.getParentFile();
+//            Log.d("ateet", mDirectory.getPath());
+//            Log.d("ateet", Environment.getExternalStorageDirectory().getParent());
             refreshFilesList();
             return;
         }
