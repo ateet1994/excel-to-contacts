@@ -2,23 +2,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
     <item android:id="@+id/refresh_list" android:title="@string/refresh"
-        android:orderInCategory="100" app:showAsAction="never" />
+        android:orderInCategory="103" app:showAsAction="never" />
     <item android:id="@+id/create_contact" android:title="@string/create"
-         app:showAsAction="never"/>
+        android:orderInCategory="100" app:showAsAction="never"/>
     <item android:id="@+id/search"
         android:title="@string/search_title"
         app:showAsAction="ifRoom"
         app:actionViewClass="android.widget.SearchView" />
     <item android:id="@+id/help" android:title="Help"
-        android:orderInCategory="101" app:showAsAction="never" />
+        android:orderInCategory="105" app:showAsAction="never" />
     <item android:id="@+id/about" android:title="About"
-        android:orderInCategory="102" app:showAsAction="never" />
+        android:orderInCategory="104" app:showAsAction="never" />
 
-    <item android:id="@+id/sync" android:title="Sync"
-        android:orderInCategory="103" app:showAsAction="never" />
+    <item android:id="@+id/download" android:title="Download"
+        android:orderInCategory="101" app:showAsAction="never" />
 
     <item android:id="@+id/write" android:title="Write"
-        android:orderInCategory="104" app:showAsAction="never" />
+        android:orderInCategory="102" app:showAsAction="never" />
+
+    <item android:id="@+id/action_settings" android:title="Settings"
+        android:orderInCategory="106" app:showAsAction="never" />
 
 
 </menu>

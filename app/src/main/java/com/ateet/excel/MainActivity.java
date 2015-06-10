@@ -4,11 +4,13 @@ import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -195,12 +197,16 @@ public class MainActivity extends ActionBarActivity {
                 AlertDialog dialog = builder.create();
                 dialog.show();
                 return true;
-            case R.id.sync:
-                new DownloadExcel().execute("http://192.168.1.105:8000/ateet1.xls");
-
+            case R.id.download:
+                SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+                String url = sharedPref.getString(getString(R.string.pref_download_key), "Input a URL in settings");
+                new DownloadExcel().execute(url);
+                return true;
             case  R.id.write:
                 writeXls(getApplicationContext());
-
+                return true;
+            case R.id.action_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -353,7 +359,7 @@ public class MainActivity extends ActionBarActivity {
                 // closing streams
                 output.close();
                 input.close();
-                message = "Synced";
+                message = "Download Complete";
                 success = true;
 
             } catch (Exception e) {

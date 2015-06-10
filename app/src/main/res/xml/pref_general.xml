@@ -1,4 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <CheckBoxPreference
+        android:key="@string/pref_download_check_key"
+        android:title="@string/pref_download_check"
+        android:summary="@string/pref_check_summ"
+        android:defaultValue="false" />
+
+    <EditTextPreference
+        android:key="@string/pref_download_key"
+        android:title="@string/pref_download_display_name"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:maxLines="1"
+        android:summary="@string/summary_download_location"
+        android:dependency="@string/pref_download_check_key"/>
 </PreferenceScreen>
