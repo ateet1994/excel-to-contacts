@@ -63,7 +63,6 @@ public class MainActivity extends ActionBarActivity {
     private static final int EDIT_CONTACT = 2;
     private static final int REQUEST_PICK_FILE = 3;
 
-    private TextView mFilePathTextView;
     private DBHelper db;
     private String excelFile;
 
@@ -73,19 +72,6 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button readExcelButton = (Button) findViewById(R.id.readExcel);
-        readExcelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //excelFile = path.getText().toString().trim();
-                if (excelFile == null) {
-                    Toast.makeText(getApplicationContext(), "Select a file", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                readXls(MainActivity.this, excelFile);
-                updateList();
-            }
-        });
 
         db = new DBHelper(this);
 
@@ -114,29 +100,6 @@ public class MainActivity extends ActionBarActivity {
 
         handleIntent(getIntent());
         registerForContextMenu(list);
-        mFilePathTextView = (TextView)findViewById(R.id.file_path_text_view);
-        Button filePickerButton = (Button)findViewById(R.id.start_file_picker_button);
-        filePickerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, FilePickerActivity.class);
-
-                // Set the initial directory to be the sdcard
-                intent.putExtra(FilePickerActivity.EXTRA_FILE_PATH, Environment.getExternalStorageDirectory().getPath());
-
-                // Show hidden files
-                //intent.putExtra(FilePickerActivity.EXTRA_SHOW_HIDDEN_FILES, true);
-
-                // Only make .png files visible
-                ArrayList<String> extensions = new ArrayList<>();
-                extensions.add(".xls");
-                intent.putExtra(FilePickerActivity.EXTRA_ACCEPTED_FILE_EXTENSIONS, extensions);
-
-                // Start the activity
-                startActivityForResult(intent, REQUEST_PICK_FILE);
-
-            }
-        });
     }
 
     @Override
@@ -207,6 +170,10 @@ public class MainActivity extends ActionBarActivity {
                 return true;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
+                return  true;
+            case R.id.read_file:
+                getFile();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -226,7 +193,14 @@ public class MainActivity extends ActionBarActivity {
                     case REQUEST_PICK_FILE:
                         if(data.hasExtra(FilePickerActivity.EXTRA_FILE_PATH)) {
                             excelFile = new File(data.getStringExtra(FilePickerActivity.EXTRA_FILE_PATH)).getPath();
-                            mFilePathTextView.setText(excelFile);
+
+                            if (excelFile == null) {
+                                Toast.makeText(getApplicationContext(), "Select a file", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            Toast.makeText(getApplicationContext(), excelFile, Toast.LENGTH_SHORT).show();
+                            readXls(MainActivity.this, excelFile);
+                            updateList();
                         }
                         break;
                 }
@@ -265,6 +239,23 @@ public class MainActivity extends ActionBarActivity {
     }
 
 
+    private void getFile() {
+        Intent intent = new Intent(MainActivity.this, FilePickerActivity.class);
+
+        // Set the initial directory to be the sdcard
+        intent.putExtra(FilePickerActivity.EXTRA_FILE_PATH, Environment.getExternalStorageDirectory().getPath());
+
+        // Show hidden files
+        //intent.putExtra(FilePickerActivity.EXTRA_SHOW_HIDDEN_FILES, true);
+
+        // Only make .png files visible
+        ArrayList<String> extensions = new ArrayList<>();
+        extensions.add(".xls");
+        intent.putExtra(FilePickerActivity.EXTRA_ACCEPTED_FILE_EXTENSIONS, extensions);
+
+        // Start the activity
+        startActivityForResult(intent, REQUEST_PICK_FILE);
+    }
 
     private void readXls(MainActivity context, String filename) {
 
