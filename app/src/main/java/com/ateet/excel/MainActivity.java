@@ -23,10 +23,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
 
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -63,7 +61,7 @@ public class MainActivity extends ActionBarActivity {
     private static final int EDIT_CONTACT = 2;
     private static final int REQUEST_PICK_FILE = 3;
     private DBHelper db;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,7 +79,7 @@ public class MainActivity extends ActionBarActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor rs = db.getData(listId.get(position));
                 rs.moveToFirst();
-                String phone = "tel:" + rs.getString(rs.getColumnIndex(DBHelper.CONTACTS_COLUMN_PHONE));
+                String phone = "tel:" + rs.getString(rs.getColumnIndex(DBHelper.COLUMN_PHONE));
 
                 rs.close();
                 Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(phone));
@@ -385,7 +383,7 @@ public class MainActivity extends ActionBarActivity {
         SQLiteDatabase dbRead = db.getReadableDatabase();
         Cursor res =  dbRead.rawQuery("select * from contacts", null);
         res.moveToFirst();
-        String[] cols = {DBHelper.CONTACTS_COLUMN_NAME, DBHelper.CONTACTS_COLUMN_PHONE, DBHelper.CONTACTS_COLUMN_EMAIL};
+        String[] cols = {DBHelper.COLUMN_NAME, DBHelper.COLUMN_PHONE, DBHelper.COLUMN_EMAIL};
         while(!res.isAfterLast()){
             row = sheet1.createRow(countRow++);
 

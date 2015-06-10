@@ -3,7 +3,6 @@ package com.ateet.excel;
 import android.database.Cursor;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,10 +31,10 @@ public class DisplayContact extends ActionBarActivity {
         if (id != -1){
             Cursor res = db.getData(id);
             res.moveToFirst();
-            name.setText(res.getString(res.getColumnIndex(DBHelper.CONTACTS_COLUMN_NAME)));
-            phone.setText(res.getString(res.getColumnIndex(DBHelper.CONTACTS_COLUMN_PHONE)));
+            name.setText(res.getString(res.getColumnIndex(DBHelper.COLUMN_NAME)));
+            phone.setText(res.getString(res.getColumnIndex(DBHelper.COLUMN_PHONE)));
 
-            email.setText(res.getString(res.getColumnIndex(DBHelper.CONTACTS_COLUMN_EMAIL)));
+            email.setText(res.getString(res.getColumnIndex(DBHelper.COLUMN_EMAIL)));
             res.close();
         }
         save = (Button) findViewById(R.id.save_contact);
