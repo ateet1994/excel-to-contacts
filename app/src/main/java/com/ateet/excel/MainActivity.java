@@ -84,21 +84,11 @@ public class MainActivity extends ActionBarActivity {
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                Cursor rs = db.getData(listId.get(position));
-                //Cursor rs = (Cursor) parent.getItemAtPosition(position);
-                //rs.moveToFirst();
-                mCursor.moveToPosition(position);
-                String phone = "tel:" + mCursor.getString(mCursor.getColumnIndex(DBHelper.COLUMN_PHONE));
-
-//                rs.close();
-                Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(phone));
-                startActivity(callIntent);
-
-                Toast.makeText(getApplicationContext(), phone, Toast.LENGTH_SHORT).show();
+                view.showContextMenu();
             }
         });
 
-        handleIntent(getIntent());
+        handleIntent(   getIntent());
         registerForContextMenu(list);
     }
 
@@ -120,7 +110,7 @@ public class MainActivity extends ActionBarActivity {
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean queryTextFocused) {
-                if(!queryTextFocused) {
+                if (!queryTextFocused) {
                     updateList();
                 }
             }
@@ -229,22 +219,46 @@ public class MainActivity extends ActionBarActivity {
         // Handle item selection
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
         mCursor.moveToPosition(info.position);
-        long id = mCursor.getInt(DBHelper.COL_ID);
         switch (item.getItemId()) {
+            case R.id.call:
+                String phone = "tel:" + mCursor.getString(DBHelper.COL_PHONE);
+                Toast.makeText(getApplicationContext(), phone, Toast.LENGTH_SHORT).show();
+                Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(phone));
+                if (callIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(callIntent);
+                }
+                return  true;
+            case R.id.message:
+                Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+                sendIntent.setData(Uri.parse("sms:" + mCursor.getString(DBHelper.COL_PHONE)));
+                if (sendIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(sendIntent);
+                }
+                return true;
+            case R.id.mail:
+                String mail = mCursor.getString(DBHelper.COL_EMAIL);
+                if (mail.length() < 1) {
+                    Toast.makeText(getApplicationContext(), "Empty Email field", Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+//                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
+//                        "mailto",mCursor.getString(DBHelper.COL_EMAIL), null));
+//                startActivity(Intent.createChooser(emailIntent, "Send email..."));
+
+                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("mailto:" + mail));
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                }
+                return true;
             case R.id.edit:
-                Intent intent = new Intent(MainActivity.this, DisplayContact.class);
-                intent.putExtra("idEdit", id);
-                startActivityForResult(intent, EDIT_CONTACT);
+                Intent editIntent = new Intent(MainActivity.this, DisplayContact.class);
+                editIntent.putExtra("idEdit", mCursor.getLong(DBHelper.COL_ID));
+                startActivityForResult(editIntent, EDIT_CONTACT);
                 return true;
             case R.id.delete:
-//                db.deleteContact(listId.get((int) info.id));
-//                array_list.remove((int)info.id);
-//                listId.remove((int)info.id);
-//                arrayAdapter.notifyDataSetChanged();
-                db.deleteContact(id);
+                db.deleteContact(mCursor.getLong(DBHelper.COL_ID));
                 updateList();
-
-                //updateList();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -301,7 +315,7 @@ public class MainActivity extends ActionBarActivity {
             while(rowIter.hasNext()){
                 HSSFRow myRow = (HSSFRow) rowIter.next();
                 Iterator cellIter = myRow.cellIterator();
-                String [] str = new String[4];
+                String [] str = new String[3];
                 short count = 0;
                 while(cellIter.hasNext()){
                     HSSFCell myCell = (HSSFCell) cellIter.next();
@@ -313,7 +327,7 @@ public class MainActivity extends ActionBarActivity {
             }
         }catch (Exception e){
             e.printStackTrace();
-            Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
+            //Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 

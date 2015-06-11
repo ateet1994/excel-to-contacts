@@ -21,4 +21,7 @@
     <string name="pref_download_check_key">download_check</string>
     <string name="pref_download_check">Enable Download</string>
     <string name="pref_check_summ">Check for enabling download feature</string>
+    <string name="call">Call</string>
+    <string name="message">Message</string>
+    <string name="mail">Mail</string>
 </resources>
