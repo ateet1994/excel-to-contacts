@@ -10,7 +10,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -66,6 +65,13 @@ public class FilePickerActivity extends ListActivity {
         if(getIntent().hasExtra(EXTRA_ACCEPTED_FILE_EXTENSIONS)) {
             ArrayList<String> collection = getIntent().getStringArrayListExtra(EXTRA_ACCEPTED_FILE_EXTENSIONS);
             acceptedFileExtensions = collection.toArray(new String[collection.size()]);
+
+            android.app.ActionBar actionBar;
+            actionBar = getActionBar();
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setDisplayShowHomeEnabled(false);
+            actionBar.setDisplayShowTitleEnabled(true);
+            actionBar.setDisplayUseLogoEnabled(false);
         }
     }
 

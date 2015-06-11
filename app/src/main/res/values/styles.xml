@@ -1,8 +1,41 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="AppTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/sunshine_blue</item>
+        <item name="colorPrimaryDark">@color/sunshine_dark_blue</item>
+        <item name="colorAccent">@color/sunshine_dark_blue</item>
+        <item name="displayOptions">showHome</item>
+    </style>
+
+    <!-- Main activity theme. -->
+    <style name="MainTheme" parent="AppTheme">
+        <item name="actionBarStyle">@style/ActionBar.Solid.Sunshine.NoTitle</item>
+    </style>
+    <!-- main activity action bar styles -->
+    <style name="ActionBar.Solid.Sunshine.NoTitle" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="logo">@drawable/icon</item>
+        <item name="displayOptions">useLogo|showHome</item>
+    </style>
+
+    <style name="DisplayTheme" parent="AppTheme">
+        <item name="actionBarStyle">@style/ActionBar.Solid.Sunshine.Title</item>
+    </style>
+
+    <style name="ActionBar.Solid.Sunshine.Title" parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="android:displayOptions">showHome|homeAsUp|showTitle</item>
+        <item name="displayOptions">showHome|homeAsUp|showTitle</item>
+        <item name="android:icon">@android:color/transparent</item>
+    </style>
+
+    <style name="SettingsTheme" parent="AppTheme">
+    </style>
+
+    <!-- Style for forecast listview -->
+    <style name="ListStyle">
+        <!-- Here it's a stub.  In screens of sufficient width, this style includes modifications
+        for two-pane layout -->
+        <!--<item name="android:choiceMode">singleChoice</item>-->
     </style>
 
 </resources>

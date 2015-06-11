@@ -419,7 +419,7 @@ public class MainActivity extends ActionBarActivity {
         sheet1 = wb.createSheet("Sheet1");
         // Generate column headings
         SQLiteDatabase dbRead = db.getReadableDatabase();
-        Cursor res =  dbRead.rawQuery("select * from contacts", null);
+        Cursor res =  dbRead.rawQuery("select * from " + DBHelper.TABLE_NAME, null);
         res.moveToFirst();
         String[] cols = {DBHelper.COLUMN_NAME, DBHelper.COLUMN_PHONE, DBHelper.COLUMN_EMAIL};
         while(!res.isAfterLast()){

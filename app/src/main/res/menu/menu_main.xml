@@ -6,7 +6,7 @@
         android:orderInCategory="103" app:showAsAction="never" />
 
     <item android:id="@+id/create_contact" android:title="@string/create"
-        android:orderInCategory="100" app:showAsAction="ifRoom"
+        android:orderInCategory="100" app:showAsAction="always"
         android:icon="@drawable/ic_add_contact_holo_light"/>
 
     <item android:id="@+id/search"

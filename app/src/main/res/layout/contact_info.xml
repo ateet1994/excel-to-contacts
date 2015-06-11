@@ -13,20 +13,14 @@
         android:layout_height="wrap_content"
         android:text="Name:"
         android:id="@+id/textView"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        android:textAppearance="?android:textAppearanceMedium"/>
 
     <EditText
         android:layout_width="389dp"
         android:layout_height="wrap_content"
         android:id="@+id/editText"
-        android:layout_below="@+id/textView"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
+        android:ems="10"
          />
 
     <TextView
@@ -34,10 +28,9 @@
         android:layout_height="wrap_content"
         android:text="Phone:"
         android:id="@+id/textView2"
-        android:layout_below="@+id/editText"
+        android:textAppearance="?android:textAppearanceMedium"
         android:textStyle="bold"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        />
 
     <EditText
         android:layout_width="match_parent"
@@ -51,11 +44,9 @@
         android:layout_height="wrap_content"
         android:text="Email Address:"
         android:id="@+id/textView4"
+        android:textAppearance="?android:textAppearanceMedium"
         android:textStyle="bold"
-        android:layout_alignBaseline="@+id/editText2"
-        android:layout_alignBottom="@+id/editText2"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        />
 
     <EditText
         android:layout_width="match_parent"
@@ -70,9 +61,7 @@
         android:layout_height="wrap_content"
         android:text="Save"
         android:id="@+id/save_contact"
-        android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        />
 
 
 </LinearLayout>
