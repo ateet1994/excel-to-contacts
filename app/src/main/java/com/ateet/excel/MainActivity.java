@@ -117,14 +117,22 @@ public class MainActivity extends ActionBarActivity {
                     (SearchView) item.getActionView();
             searchView.setSearchableInfo(
                     searchManager.getSearchableInfo(getComponentName()));
-            searchView.setOnCloseListener(new SearchView.OnCloseListener() {
-                @Override
-                public boolean onClose() {
-                    //Log.d(TAG, "close");
+        searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean queryTextFocused) {
+                if(!queryTextFocused) {
                     updateList();
-                    return false;
                 }
-            });
+            }
+        });
+//            searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+//                @Override
+//                public boolean onClose() {
+//                    Log.d(TAG, "close");
+//                    updateList();
+//                    return false;
+//                }
+//            });
 
 
         return super.onCreateOptionsMenu(menu);
@@ -459,7 +467,7 @@ public class MainActivity extends ActionBarActivity {
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-//            searchKeyString(query);
+            searchKeyString(query);
 //            arrayAdapter.notifyDataSetChanged();
 
         }
@@ -472,21 +480,21 @@ public class MainActivity extends ActionBarActivity {
         db.close();
     }
 
-//    public void searchKeyString(String key){
-////        array_list.clear();
-////        listId.clear();
-//        // Select All Query
-//        String selectQuery = "SELECT  * FROM " + DBHelper.TABLE_NAME + " WHERE " + DBHelper.COLUMN_NAME + " LIKE ?";
-//
-//        SQLiteDatabase dbRead = db.getReadableDatabase();
-//        Cursor cursor = dbRead.rawQuery(selectQuery,  new String[] {key+"%"});
-//        // db.rawQuery("SELECT * FROM "+table+" WHERE KEY_KEY LIKE ?", new String[] {key+"%"});
-//        // if you want to get everything starting with that key value
-//        if (cursor.moveToFirst()) {
-//            mContactAdapter.changeCursor(cursor);
-//        }
-//        else mContactAdapter.changeCursor(null);
-//        cursor.close();
-//    }
+    public void searchKeyString(String key){
+//        array_list.clear();
+//        listId.clear();
+        // Select All Query
+        String selectQuery = "SELECT  * FROM " + DBHelper.TABLE_NAME + " WHERE " + DBHelper.COLUMN_NAME + " LIKE ?";
+
+        SQLiteDatabase dbRead = db.getReadableDatabase();
+        mCursor = dbRead.rawQuery(selectQuery,  new String[] {key+"%"});
+        // db.rawQuery("SELECT * FROM "+table+" WHERE KEY_KEY LIKE ?", new String[] {key+"%"});
+        // if you want to get everything starting with that key value
+        if (mCursor.moveToFirst()) {
+            mContactAdapter.changeCursor(mCursor);
+        }
+        else mContactAdapter.changeCursor(null);
+        //cursor.close();
+    }
 }
 
