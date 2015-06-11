@@ -2,6 +2,7 @@ package com.ateet.excel;
 
 import android.app.AlertDialog;
 import android.app.SearchManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -49,6 +50,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Vector;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -291,6 +293,8 @@ public class MainActivity extends ActionBarActivity {
             Log.e("ateet", "Storage not available or read only");
             return;
         }
+        ContentValues[] values;
+        Vector<ContentValues> cVVector = new Vector<ContentValues>();
 
         try{
             // Creating Input Stream
@@ -312,6 +316,7 @@ public class MainActivity extends ActionBarActivity {
             /** We now need something to iterate through the cells.**/
             Iterator rowIter = mySheet.rowIterator();
 
+
             while(rowIter.hasNext()){
                 HSSFRow myRow = (HSSFRow) rowIter.next();
                 Iterator cellIter = myRow.cellIterator();
@@ -324,13 +329,27 @@ public class MainActivity extends ActionBarActivity {
                     if (s != null && s.length() > 0)
                       str[count++] = s;
                 }
+                ContentValues contactValues = new ContentValues();
                 if (str[2] == null) str[2] = "";
-                if (str[0] != null && str[1] != null && str[0].length() > 0 && str[1].length() > 0)
-                  db.insertContact(str[0], str[1], str[2]);
+                if (str[0] != null && str[1] != null && str[0].length() > 0 && str[1].length() > 0) {
+//                    db.insertContact(str[0], str[1], str[2]);
+                    contactValues.put(DBHelper.COLUMN_NAME, str[0]);
+                    contactValues.put(DBHelper.COLUMN_PHONE, str[1]);
+                    contactValues.put(DBHelper.COLUMN_EMAIL, str[2]);
+                    cVVector.add(contactValues);
+                }
             }
         }catch (Exception e){
             e.printStackTrace();
             //Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+        finally {
+            if ( cVVector.size() > 0 ) {
+                // Student: call bulkInsert to add the weatherEntries to the database here
+                ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                cVVector.toArray(cvArray);
+                db.bulkInsert(cvArray);
+            }
         }
     }
 

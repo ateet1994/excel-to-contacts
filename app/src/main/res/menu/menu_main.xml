@@ -6,8 +6,12 @@
         android:orderInCategory="103" app:showAsAction="never" />
 
     <item android:id="@+id/create_contact" android:title="@string/create"
-        android:orderInCategory="100" app:showAsAction="always"
+         app:showAsAction="ifRoom"
         android:icon="@drawable/ic_add_contact_holo_light"/>
+
+    <item android:id="@+id/read_file" android:title="read"
+        app:showAsAction="always"
+        android:icon="@drawable/toolbar_new"/>
 
     <item android:id="@+id/search"
         android:title="@string/search_title"
@@ -15,15 +19,11 @@
         app:showAsAction="always|collapseActionView"
         app:actionViewClass="android.support.v7.widget.SearchView" />
 
-    <item android:id="@+id/read_file" android:title="read"
-        app:showAsAction="always"
-        android:icon="@drawable/toolbar_new"/>
-
     <item android:id="@+id/help" android:title="Help"
-        android:orderInCategory="105" app:showAsAction="never" />
+        android:orderInCategory="104" app:showAsAction="never" />
 
     <item android:id="@+id/about" android:title="About"
-        android:orderInCategory="104" app:showAsAction="never" />
+        android:orderInCategory="105" app:showAsAction="never" />
 
     <item android:id="@+id/download" android:title="Download"
         android:orderInCategory="101" app:showAsAction="never" />

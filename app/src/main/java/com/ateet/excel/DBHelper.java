@@ -77,7 +77,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_NAME, name);
         contentValues.put(COLUMN_PHONE, phone);
         contentValues.put(COLUMN_EMAIL, email);
-        db.update(TABLE_NAME, contentValues, COLUMN_ID +" = ? ", new String[]{Long.toString(id)});
+        db.update(TABLE_NAME, contentValues, COLUMN_ID + " = ? ", new String[]{Long.toString(id)});
         return true;
     }
     public Cursor getData(long id){
@@ -105,6 +105,23 @@ public class DBHelper extends SQLiteOpenHelper {
 //        }
 //        res.close();
         return res;
+    }
+
+    public void bulkInsert(ContentValues[] values) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            for (ContentValues value : values) {
+//                try {
+                    db.insertWithOnConflict(TABLE_NAME, null, value, SQLiteDatabase.CONFLICT_REPLACE);
+                    //} catch (SQLiteConstraintException e) {
+                    //Toast.makeText(get, e.printStackTrace(), Toast.LENGTH_LONG).show();
+                    //e.printStackTrace();
+            }
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
 }
