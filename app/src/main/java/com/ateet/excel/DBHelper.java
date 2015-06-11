@@ -12,14 +12,22 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "xltocontacts.db";
     public static final String TABLE_NAME = "contacts";
-    public static final String COLUMN_ID = "_ID";
+    public static final String COLUMN_ID = "_id";
     public static final String COLUMN_NAME = "name";
     public static final String COLUMN_PHONE = "phone";
     public static final String COLUMN_EMAIL = "email";
 
-    public static final int COL_NAME = 0;
-    public static final int COL_PHONE = 1;
-    public static final int COL_EMAIL = 2;
+    public static final int COL_ID = 0;
+    public static final int COL_NAME = 1;
+    public static final int COL_PHONE = 2;
+    public static final int COL_EMAIL = 3;
+
+    public static final String[] PROJECTIONS = {
+            COLUMN_ID,
+            COLUMN_NAME,
+            COLUMN_PHONE,
+            COLUMN_EMAIL
+    };
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
@@ -62,58 +70,41 @@ public class DBHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    public boolean updateContact (Integer id, String name, String phone, String email)
+    public boolean updateContact (long id, String name, String phone, String email)
     {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COLUMN_NAME, name);
         contentValues.put(COLUMN_PHONE, phone);
         contentValues.put(COLUMN_EMAIL, email);
-        db.update(TABLE_NAME, contentValues, COLUMN_ID +" = ? ", new String[]{Integer.toString(id)});
+        db.update(TABLE_NAME, contentValues, COLUMN_ID +" = ? ", new String[]{Long.toString(id)});
         return true;
     }
-    public Cursor getData(int id){
+    public Cursor getData(long id){
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery( "select * from " + TABLE_NAME + " where " + COLUMN_ID + " = "+ id + "", null );
     }
-    public Integer deleteContact (int id)
+    public Integer deleteContact (long id)
     {
         SQLiteDatabase db = this.getWritableDatabase();
         return db.delete(TABLE_NAME,
                 COLUMN_ID + " = ? ",
-                new String[]{Integer.toString(id)});
+                new String[]{Long.toString(id)});
     }
-    public void getAllContacts(ArrayList array_list, ArrayList<Integer> listId)
+    public Cursor getAllContacts()//ArrayList array_list, ArrayList<Integer> listId)
     {
-        array_list.clear();
-        listId.clear();
+//        array_list.clear();
+//        listId.clear();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery("select * from " + TABLE_NAME, null);
+        Cursor res =  db.query(TABLE_NAME, PROJECTIONS, null, null, null, null, null);
         res.moveToFirst();
-        while(!res.isAfterLast()){
-            array_list.add(res.getString(res.getColumnIndex(COLUMN_NAME)));
-            listId.add(res.getInt(res.getColumnIndex(COLUMN_ID)));
-            res.moveToNext();
-        }
-        res.close();
-    }
-    public void searchKeyString(String key, ArrayList<String> array_list, ArrayList<Integer> listId){
-        array_list.clear();
-        listId.clear();
-        // Select All Query
-        String selectQuery = "SELECT  * FROM " + TABLE_NAME + " WHERE " + COLUMN_NAME + " LIKE ?";
-
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery,  new String[] {key+"%"});
-        // db.rawQuery("SELECT * FROM "+table+" WHERE KEY_KEY LIKE ?", new String[] {key+"%"});
-        // if you want to get everything starting with that key value
-        if (cursor.moveToFirst()) {
-            do {
-                array_list.add(cursor.getString(1));
-                listId.add(cursor.getInt(cursor.getColumnIndex(COLUMN_ID)));
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
+//        while(!res.isAfterLast()){
+//            array_list.add(res.getString(res.getColumnIndex(COLUMN_NAME)));
+//            listId.add(res.getInt(res.getColumnIndex(COLUMN_ID)));
+//            res.moveToNext();
+//        }
+//        res.close();
+        return res;
     }
 
 }

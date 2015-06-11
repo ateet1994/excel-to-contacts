@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:minHeight="?android:listPreferredItemHeight"
+    android:padding="10dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/list_item_name_textview"
+        android:textAppearance="?android:textAppearanceListItem"
         />
     <TextView
         android:layout_width="wrap_content"
@@ -14,6 +17,7 @@
         android:id="@+id/list_item_phone_textview"
         android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
+        android:textAppearance="?android:textAppearanceListItemSmall"
         />
 
 </LinearLayout>

@@ -53,9 +53,11 @@ import java.util.Iterator;
 
 public class MainActivity extends ActionBarActivity {
 
-    private ArrayAdapter<String> arrayAdapter;
-    ArrayList<String> array_list = new ArrayList<>();
-    ArrayList<Integer> listId = new ArrayList<>();
+//    private ArrayAdapter<String> arrayAdapter;
+//    ArrayList<String> array_list = new ArrayList<>();
+//    ArrayList<Integer> listId = new ArrayList<>();
+    private ContactAdapter mContactAdapter;
+    private Cursor mCursor;
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int CREATE_CONTACT = 1;
     private static final int EDIT_CONTACT = 2;
@@ -67,21 +69,28 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         db = new DBHelper(this);
-        db.getAllContacts(array_list, listId);
-        arrayAdapter =
-                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, array_list);
+//        db.getAllContacts(array_list, listId);
+//        arrayAdapter =
+//                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, array_list);
+
+        mCursor = db.getAllContacts();
+        if (mCursor.moveToFirst())
+            mContactAdapter = new ContactAdapter(this, mCursor, 0);
+        else mContactAdapter = new ContactAdapter(getApplicationContext(), null, 0);
         ListView list = (ListView)findViewById(R.id.listView1);
-        list.setAdapter(arrayAdapter);
+        list.setAdapter(mContactAdapter);
 
 
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Cursor rs = db.getData(listId.get(position));
-                rs.moveToFirst();
-                String phone = "tel:" + rs.getString(rs.getColumnIndex(DBHelper.COLUMN_PHONE));
+//                Cursor rs = db.getData(listId.get(position));
+                //Cursor rs = (Cursor) parent.getItemAtPosition(position);
+                //rs.moveToFirst();
+                mCursor.moveToPosition(position);
+                String phone = "tel:" + mCursor.getString(mCursor.getColumnIndex(DBHelper.COLUMN_PHONE));
 
-                rs.close();
+//                rs.close();
                 Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(phone));
                 startActivity(callIntent);
 
@@ -211,17 +220,21 @@ public class MainActivity extends ActionBarActivity {
     public boolean onContextItemSelected(MenuItem item) {
         // Handle item selection
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+        mCursor.moveToPosition(info.position);
+        long id = mCursor.getInt(DBHelper.COL_ID);
         switch (item.getItemId()) {
             case R.id.edit:
                 Intent intent = new Intent(MainActivity.this, DisplayContact.class);
-                intent.putExtra("idEdit", listId.get((int) info.id));
+                intent.putExtra("idEdit", id);
                 startActivityForResult(intent, EDIT_CONTACT);
                 return true;
             case R.id.delete:
-                db.deleteContact(listId.get((int) info.id));
-                array_list.remove((int)info.id);
-                listId.remove((int)info.id);
-                arrayAdapter.notifyDataSetChanged();
+//                db.deleteContact(listId.get((int) info.id));
+//                array_list.remove((int)info.id);
+//                listId.remove((int)info.id);
+//                arrayAdapter.notifyDataSetChanged();
+                db.deleteContact(id);
+                updateList();
 
                 //updateList();
                 return true;
@@ -418,10 +431,6 @@ public class MainActivity extends ActionBarActivity {
         }
     }
 
-
-
-
-
     public static boolean isExternalStorageReadOnly() {
         String extStorageState = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState);
@@ -433,8 +442,10 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void updateList() {
-        db.getAllContacts(array_list, listId);
-        arrayAdapter.notifyDataSetChanged();
+//        db.getAllContacts(array_list, listId);
+//        arrayAdapter.notifyDataSetChanged();
+        mCursor = db.getAllContacts();
+        mContactAdapter.changeCursor(mCursor);
     }
 
 
@@ -448,8 +459,8 @@ public class MainActivity extends ActionBarActivity {
 
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
-            db.searchKeyString(query, array_list, listId);
-            arrayAdapter.notifyDataSetChanged();
+//            searchKeyString(query);
+//            arrayAdapter.notifyDataSetChanged();
 
         }
     }
@@ -457,7 +468,25 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mCursor.close();
         db.close();
     }
+
+//    public void searchKeyString(String key){
+////        array_list.clear();
+////        listId.clear();
+//        // Select All Query
+//        String selectQuery = "SELECT  * FROM " + DBHelper.TABLE_NAME + " WHERE " + DBHelper.COLUMN_NAME + " LIKE ?";
+//
+//        SQLiteDatabase dbRead = db.getReadableDatabase();
+//        Cursor cursor = dbRead.rawQuery(selectQuery,  new String[] {key+"%"});
+//        // db.rawQuery("SELECT * FROM "+table+" WHERE KEY_KEY LIKE ?", new String[] {key+"%"});
+//        // if you want to get everything starting with that key value
+//        if (cursor.moveToFirst()) {
+//            mContactAdapter.changeCursor(cursor);
+//        }
+//        else mContactAdapter.changeCursor(null);
+//        cursor.close();
+//    }
 }
 

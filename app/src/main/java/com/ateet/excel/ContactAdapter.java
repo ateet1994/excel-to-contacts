@@ -18,7 +18,7 @@ public class ContactAdapter extends CursorAdapter{
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        View view = LayoutInflater.from(context).inflate(cursor.getPosition(), parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.list_view_contacts, parent, false);
         ViewHolder viewHolder = new ViewHolder(view);
         view.setTag(viewHolder);
         return view;

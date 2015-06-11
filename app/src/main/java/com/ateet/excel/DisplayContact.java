@@ -27,7 +27,7 @@ public class DisplayContact extends ActionBarActivity {
         email = (EditText) findViewById(R.id.editText3);
         db = new DBHelper(this);
 
-        final int id = getIntent().getIntExtra("idEdit", -1);
+        final long id = getIntent().getIntExtra("idEdit", -1);
         if (id != -1){
             Cursor res = db.getData(id);
             res.moveToFirst();
