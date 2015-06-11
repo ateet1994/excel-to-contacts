@@ -3,6 +3,7 @@ package com.ateet.excel;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,9 +28,10 @@ public class ContactAdapter extends CursorAdapter{
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder viewHolder = (ViewHolder) view.getTag();
-
         viewHolder.nameView.setText(cursor.getString(DBHelper.COL_NAME));
+        viewHolder.nameView.setTextColor(Color.BLACK);
         viewHolder.phoneView.setText(cursor.getString(DBHelper.COL_PHONE));
+        viewHolder.phoneView.setTextColor(Color.GRAY);
     }
 
     public static class ViewHolder {

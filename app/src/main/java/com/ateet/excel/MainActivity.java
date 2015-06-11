@@ -88,7 +88,7 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
-        handleIntent(   getIntent());
+        handleIntent(getIntent());
         registerForContextMenu(list);
     }
 
@@ -320,9 +320,12 @@ public class MainActivity extends ActionBarActivity {
                 while(cellIter.hasNext()){
                     HSSFCell myCell = (HSSFCell) cellIter.next();
                     myCell.setCellType(HSSFCell.CELL_TYPE_STRING);
-                    str[count++] = myCell.getStringCellValue();
+                    String s = myCell.getStringCellValue();
+                    if (s != null && s.length() > 0)
+                      str[count++] = s;
                 }
-                if (str[0].length() > 0 && str[1].length() > 0)
+                if (str[2] == null) str[2] = "";
+                if (str[0] != null && str[1] != null && str[0].length() > 0 && str[1].length() > 0)
                   db.insertContact(str[0], str[1], str[2]);
             }
         }catch (Exception e){
