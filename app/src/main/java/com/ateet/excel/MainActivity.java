@@ -80,6 +80,7 @@ public class MainActivity extends ActionBarActivity {
             mContactAdapter = new ContactAdapter(this, mCursor, 0);
         else mContactAdapter = new ContactAdapter(getApplicationContext(), null, 0);
         ListView list = (ListView)findViewById(R.id.listView1);
+        list.setEmptyView(findViewById(R.id.empty));
         list.setAdapter(mContactAdapter);
 
 
@@ -288,12 +289,10 @@ public class MainActivity extends ActionBarActivity {
 
     private void readXls(MainActivity context, String filename) {
 
-        if (!isExternalStorageAvailable() || isExternalStorageReadOnly())
-        {
+        if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
             Log.e("ateet", "Storage not available or read only");
             return;
         }
-        ContentValues[] values;
         Vector<ContentValues> cVVector = new Vector<ContentValues>();
 
         try{

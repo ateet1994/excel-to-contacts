@@ -12,6 +12,14 @@
         android:id="@+id/listView1"
         android:divider="#00000000"
        />
+    <TextView
+        android:id="@+id/empty"
+        android:text="Click '+' button"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        style="@android:style/TextAppearance.Large"
+        android:gravity="center">
+    </TextView>
 
 
 </FrameLayout>
