@@ -91,19 +91,12 @@ public class DBHelper extends SQLiteOpenHelper {
                 COLUMN_ID + " = ? ",
                 new String[]{Long.toString(id)});
     }
-    public Cursor getAllContacts()//ArrayList array_list, ArrayList<Integer> listId)
+    public Cursor getAllContacts()
     {
-//        array_list.clear();
-//        listId.clear();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.query(TABLE_NAME, PROJECTIONS, null, null, null, null, null);
+        String sortOrder = COLUMN_NAME + " ASC";
+        Cursor res =  db.query(TABLE_NAME, PROJECTIONS, null, null, null, null, sortOrder);
         res.moveToFirst();
-//        while(!res.isAfterLast()){
-//            array_list.add(res.getString(res.getColumnIndex(COLUMN_NAME)));
-//            listId.add(res.getInt(res.getColumnIndex(COLUMN_ID)));
-//            res.moveToNext();
-//        }
-//        res.close();
         return res;
     }
 

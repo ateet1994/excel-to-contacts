@@ -23,7 +23,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import android.widget.Toast;
@@ -54,10 +53,7 @@ import java.util.Vector;
 
 
 public class MainActivity extends ActionBarActivity {
-
-//    private ArrayAdapter<String> arrayAdapter;
-//    ArrayList<String> array_list = new ArrayList<>();
-//    ArrayList<Integer> listId = new ArrayList<>();
+    
     private ContactAdapter mContactAdapter;
     private Cursor mCursor;
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -71,10 +67,6 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         db = new DBHelper(this);
-//        db.getAllContacts(array_list, listId);
-//        arrayAdapter =
-//                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, array_list);
-
         mCursor = db.getAllContacts();
         if (mCursor.moveToFirst())
             mContactAdapter = new ContactAdapter(this, mCursor, 0);
@@ -195,11 +187,6 @@ public class MainActivity extends ActionBarActivity {
                         if(data.hasExtra(FilePickerActivity.EXTRA_FILE_PATH)) {
                             String excelFile;
                             excelFile = new File(data.getStringExtra(FilePickerActivity.EXTRA_FILE_PATH)).getPath();
-
-//                            if (excelFile == null) {
-//                                Toast.makeText(getApplicationContext(), "Select a file", Toast.LENGTH_SHORT).show();
-//                                return;
-//                            }
                             Toast.makeText(getApplicationContext(), excelFile, Toast.LENGTH_SHORT).show();
                             readXls(MainActivity.this, excelFile);
                             updateList();
@@ -485,8 +472,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
     private void updateList() {
-//        db.getAllContacts(array_list, listId);
-//        arrayAdapter.notifyDataSetChanged();
         mCursor = db.getAllContacts();
         mContactAdapter.changeCursor(mCursor);
     }
@@ -503,8 +488,6 @@ public class MainActivity extends ActionBarActivity {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             String query = intent.getStringExtra(SearchManager.QUERY);
             searchKeyString(query);
-//            arrayAdapter.notifyDataSetChanged();
-
         }
     }
 
@@ -516,9 +499,6 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void searchKeyString(String key){
-//        array_list.clear();
-//        listId.clear();
-        // Select All Query
         String selectQuery = "SELECT  * FROM " + DBHelper.TABLE_NAME + " WHERE " + DBHelper.COLUMN_NAME + " LIKE ?";
 
         SQLiteDatabase dbRead = db.getReadableDatabase();
@@ -529,7 +509,6 @@ public class MainActivity extends ActionBarActivity {
             mContactAdapter.changeCursor(mCursor);
         }
         else mContactAdapter.changeCursor(null);
-        //cursor.close();
     }
 }
 
