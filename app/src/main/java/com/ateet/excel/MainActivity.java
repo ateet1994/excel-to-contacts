@@ -2,6 +2,7 @@ package com.ateet.excel;
 
 import android.app.AlertDialog;
 import android.app.SearchManager;
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -63,6 +64,7 @@ public class MainActivity extends ActionBarActivity {
     private static final int EDIT_CONTACT = 2;
     private static final int REQUEST_PICK_FILE = 3;
     private DBHelper db;
+    private Thread mThread;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +75,7 @@ public class MainActivity extends ActionBarActivity {
         if (mCursor.moveToFirst())
             mContactAdapter = new ContactAdapter(this, mCursor, 0);
         else mContactAdapter = new ContactAdapter(getApplicationContext(), null, 0);
-        ListView list = (ListView)findViewById(R.id.listView1);
+        ListView list = (ListView) findViewById(R.id.listView1);
         list.setEmptyView(findViewById(R.id.empty));
         list.setAdapter(mContactAdapter);
 
@@ -93,17 +95,17 @@ public class MainActivity extends ActionBarActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
 
-        
+
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_main, menu);
 
-            SearchManager searchManager =
-                    (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-            MenuItem item = menu.findItem(R.id.search);
-            SearchView searchView =
-                    (SearchView) item.getActionView();
-            searchView.setSearchableInfo(
-                    searchManager.getSearchableInfo(getComponentName()));
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        MenuItem item = menu.findItem(R.id.search);
+        SearchView searchView =
+                (SearchView) item.getActionView();
+        searchView.setSearchableInfo(
+                searchManager.getSearchableInfo(getComponentName()));
         searchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean queryTextFocused) {
@@ -160,18 +162,17 @@ public class MainActivity extends ActionBarActivity {
                 String url = sharedPref.getString(getString(R.string.pref_download_key), "Input a URL in settings");
                 new DownloadExcel().execute(url);
                 return true;
-            case  R.id.write:
+            case R.id.write:
                 writeXls(getApplicationContext());
                 return true;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
-                return  true;
+                return true;
             case R.id.read_file:
                 getFile();
                 return true;
             case R.id.writePB:
-                readContactsFromPhoneBook();
-                updateList();
+                new ReadPB().execute();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -182,24 +183,24 @@ public class MainActivity extends ActionBarActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request we're responding to
         super.onActivityResult(requestCode, resultCode, data);
-            // Make sure the request was successful
-            if (resultCode == RESULT_OK) {
-                switch(requestCode) {
-                    case CREATE_CONTACT:
-                    case EDIT_CONTACT:
+        // Make sure the request was successful
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case CREATE_CONTACT:
+                case EDIT_CONTACT:
+                    updateList();
+                    break;
+                case REQUEST_PICK_FILE:
+                    if (data.hasExtra(FilePickerActivity.EXTRA_FILE_PATH)) {
+                        String excelFile;
+                        excelFile = new File(data.getStringExtra(FilePickerActivity.EXTRA_FILE_PATH)).getPath();
+                        Toast.makeText(getApplicationContext(), excelFile, Toast.LENGTH_SHORT).show();
+                        readXls(MainActivity.this, excelFile);
                         updateList();
-                        break;
-                    case REQUEST_PICK_FILE:
-                        if(data.hasExtra(FilePickerActivity.EXTRA_FILE_PATH)) {
-                            String excelFile;
-                            excelFile = new File(data.getStringExtra(FilePickerActivity.EXTRA_FILE_PATH)).getPath();
-                            Toast.makeText(getApplicationContext(), excelFile, Toast.LENGTH_SHORT).show();
-                            readXls(MainActivity.this, excelFile);
-                            updateList();
-                        }
-                        break;
-                }
+                    }
+                    break;
             }
+        }
     }
 
     @Override
@@ -223,7 +224,7 @@ public class MainActivity extends ActionBarActivity {
                 if (callIntent.resolveActivity(getPackageManager()) != null) {
                     startActivity(callIntent);
                 }
-                return  true;
+                return true;
             case R.id.message:
                 Intent sendIntent = new Intent(Intent.ACTION_VIEW);
                 sendIntent.setData(Uri.parse("sms:" + mCursor.getString(DBHelper.COL_PHONE1)));
@@ -288,7 +289,7 @@ public class MainActivity extends ActionBarActivity {
         }
         Vector<ContentValues> cVVector = new Vector<ContentValues>();
 
-        try{
+        try {
             // Creating Input Stream
             InputStream myInput;
 
@@ -309,17 +310,17 @@ public class MainActivity extends ActionBarActivity {
             Iterator rowIter = mySheet.rowIterator();
 
             if (rowIter.hasNext()) rowIter.next();
-            while(rowIter.hasNext()){
+            while (rowIter.hasNext()) {
                 HSSFRow myRow = (HSSFRow) rowIter.next();
                 Iterator cellIter = myRow.cellIterator();
-                String [] str = new String[11];
+                String[] str = new String[11];
                 short count = 0;
-                while(cellIter.hasNext()){
+                while (cellIter.hasNext()) {
                     HSSFCell myCell = (HSSFCell) cellIter.next();
                     myCell.setCellType(HSSFCell.CELL_TYPE_STRING);
                     String s = myCell.getStringCellValue();
 //                    if (s != null && s.length() > 0)
-                      str[count++] = s;
+                    str[count++] = s;
                 }
                 ContentValues contactValues = new ContentValues();
                 if (str[0] != null && str[1] != null && str[0].length() > 0 && str[1].length() > 0) {
@@ -333,12 +334,11 @@ public class MainActivity extends ActionBarActivity {
                     cVVector.add(contactValues);
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             //Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-        finally {
-            if ( cVVector.size() > 0 ) {
+        } finally {
+            if (cVVector.size() > 0) {
                 // Student: call bulkInsert to add the weatherEntries to the database here
                 ContentValues[] cvArray = new ContentValues[cVVector.size()];
                 cVVector.toArray(cvArray);
@@ -351,10 +351,11 @@ public class MainActivity extends ActionBarActivity {
 
         private String message, filename;
         private boolean success;
+
         /**
          * Before starting background thread
          * Show Progress Bar Dialog
-         * */
+         */
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
@@ -362,7 +363,7 @@ public class MainActivity extends ActionBarActivity {
 
         /**
          * Downloading file in background thread
-         * */
+         */
         @Override
         protected String doInBackground(String... f_url) {
             int count;
@@ -378,7 +379,7 @@ public class MainActivity extends ActionBarActivity {
                 InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
                 // Output stream to write file
-                OutputStream output = new FileOutputStream(getExternalFilesDir(null)+filename);
+                OutputStream output = new FileOutputStream(getExternalFilesDir(null) + filename);
 
                 byte data[] = new byte[1024];
 
@@ -408,7 +409,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(String file_url) {
             if (success) {
-                readXls(MainActivity.this, getExternalFilesDir(null)+filename);
+                readXls(MainActivity.this, getExternalFilesDir(null) + filename);
                 updateList();
             }
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
@@ -416,9 +417,8 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    private void writeXls(Context context){
-        if (!isExternalStorageAvailable() || isExternalStorageReadOnly())
-        {
+    private void writeXls(Context context) {
+        if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
             Log.e("ateet", "Storage not available or read only");
             return;
         }
@@ -432,16 +432,18 @@ public class MainActivity extends ActionBarActivity {
         sheet1 = wb.createSheet("Sheet1");
         // Generate column headings
         SQLiteDatabase dbRead = db.getReadableDatabase();
-        Cursor res =  dbRead.rawQuery("select * from " + DBHelper.TABLE_NAME, null);
+        Cursor res = dbRead.rawQuery("select * from " + DBHelper.TABLE_NAME, null);
         res.moveToFirst();
-        String[] cols = {DBHelper.COLUMN_NAME, DBHelper.COLUMN_PHONE1, DBHelper.COLUMN_EMAIL1};
-        while(!res.isAfterLast()){
+        String[] cols = DBHelper.PROJECTIONS;
+        while (!res.isAfterLast()) {
             row = sheet1.createRow(countRow++);
 
-            for (int countCol = 0; countCol < 3; countCol++)
-            {
-                c = row.createCell(countCol);
-                c.setCellValue(res.getString(res.getColumnIndex(cols[countCol])));
+            for (int countCol = 1; countCol < 12; countCol++) {
+                c = row.createCell(countCol - 1);
+                if (countRow == 1)
+                    c.setCellValue(cols[countCol]);
+                else
+                c.setCellValue(res.getString(countCol));
             }
 
             res.moveToNext();
@@ -506,17 +508,16 @@ public class MainActivity extends ActionBarActivity {
         db.close();
     }
 
-    public void searchKeyString(String key){
+    public void searchKeyString(String key) {
         String selectQuery = "SELECT  * FROM " + DBHelper.TABLE_NAME + " WHERE " + DBHelper.COLUMN_NAME + " LIKE ?";
 
         SQLiteDatabase dbRead = db.getReadableDatabase();
-        mCursor = dbRead.rawQuery(selectQuery,  new String[] {key+"%"});
+        mCursor = dbRead.rawQuery(selectQuery, new String[]{key + "%"});
         // db.rawQuery("SELECT * FROM "+table+" WHERE KEY_KEY LIKE ?", new String[] {key+"%"});
         // if you want to get everything starting with that key value
         if (mCursor.moveToFirst()) {
             mContactAdapter.changeCursor(mCursor);
-        }
-        else mContactAdapter.changeCursor(null);
+        } else mContactAdapter.changeCursor(null);
     }
 
     public void readContactsFromPhoneBook() {
@@ -536,10 +537,10 @@ public class MainActivity extends ActionBarActivity {
 
                     // get the phone number
                     Cursor pCur = cr.query(ContactsContract.Data.CONTENT_URI,
-                            new String[] {CommonDataKinds.Phone.NUMBER},
+                            new String[]{CommonDataKinds.Phone.NUMBER},
                             ContactsContract.Data.RAW_CONTACT_ID + "=?" + " AND "
                                     + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'",
-                            new String[] {String.valueOf(id)}, null);
+                            new String[]{String.valueOf(id)}, null);
 
                     while (pCur.moveToNext()) {
                         String phone = pCur.getString(
@@ -550,13 +551,13 @@ public class MainActivity extends ActionBarActivity {
                     pCur.close();
 
                     count = 6;
-                     //get email and type
+                    //get email and type
 
                     Cursor emailCur = cr.query(ContactsContract.Data.CONTENT_URI,
-                            new String[] {CommonDataKinds.Email.ADDRESS},
+                            new String[]{CommonDataKinds.Email.ADDRESS},
                             ContactsContract.Data.RAW_CONTACT_ID + "=?" + " AND "
                                     + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE + "'",
-                            new String[] {String.valueOf(id)}, null);
+                            new String[]{String.valueOf(id)}, null);
                     while (emailCur.moveToNext()) {
                         // This would allow you get several email addresses
                         // if the email addresses were stored in an array
@@ -572,5 +573,22 @@ public class MainActivity extends ActionBarActivity {
         }
         cur.close();
     }
+
+    class ReadPB extends AsyncTask<Void, Void, Void>
+    {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            readContactsFromPhoneBook();
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            updateList();
+        }
+    }
 }
+
 
