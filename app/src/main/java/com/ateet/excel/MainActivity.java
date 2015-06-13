@@ -171,6 +171,7 @@ public class MainActivity extends ActionBarActivity {
                 return true;
             case R.id.writePB:
                 readContactsFromPhoneBook();
+                updateList();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -216,7 +217,7 @@ public class MainActivity extends ActionBarActivity {
         mCursor.moveToPosition(info.position);
         switch (item.getItemId()) {
             case R.id.call:
-                String phone = "tel:" + mCursor.getString(DBHelper.COL_PHONE);
+                String phone = "tel:" + mCursor.getString(DBHelper.COL_PHONE1);
                 Toast.makeText(getApplicationContext(), phone, Toast.LENGTH_SHORT).show();
                 Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(phone));
                 if (callIntent.resolveActivity(getPackageManager()) != null) {
@@ -225,13 +226,13 @@ public class MainActivity extends ActionBarActivity {
                 return  true;
             case R.id.message:
                 Intent sendIntent = new Intent(Intent.ACTION_VIEW);
-                sendIntent.setData(Uri.parse("sms:" + mCursor.getString(DBHelper.COL_PHONE)));
+                sendIntent.setData(Uri.parse("sms:" + mCursor.getString(DBHelper.COL_PHONE1)));
                 if (sendIntent.resolveActivity(getPackageManager()) != null) {
                     startActivity(sendIntent);
                 }
                 return true;
             case R.id.mail:
-                String mail = mCursor.getString(DBHelper.COL_EMAIL);
+                String mail = mCursor.getString(DBHelper.COL_EMAIL1);
                 if (mail.length() < 1) {
                     Toast.makeText(getApplicationContext(), "Empty Email field", Toast.LENGTH_SHORT).show();
                     return true;
@@ -307,26 +308,28 @@ public class MainActivity extends ActionBarActivity {
             /** We now need something to iterate through the cells.**/
             Iterator rowIter = mySheet.rowIterator();
 
-
+            
             while(rowIter.hasNext()){
                 HSSFRow myRow = (HSSFRow) rowIter.next();
                 Iterator cellIter = myRow.cellIterator();
-                String [] str = new String[3];
+                String [] str = new String[11];
                 short count = 0;
                 while(cellIter.hasNext()){
                     HSSFCell myCell = (HSSFCell) cellIter.next();
                     myCell.setCellType(HSSFCell.CELL_TYPE_STRING);
                     String s = myCell.getStringCellValue();
-                    if (s != null && s.length() > 0)
+//                    if (s != null && s.length() > 0)
                       str[count++] = s;
                 }
                 ContentValues contactValues = new ContentValues();
-                if (str[2] == null) str[2] = "";
                 if (str[0] != null && str[1] != null && str[0].length() > 0 && str[1].length() > 0) {
 //                    db.insertContact(str[0], str[1], str[2]);
                     contactValues.put(DBHelper.COLUMN_NAME, str[0]);
-                    contactValues.put(DBHelper.COLUMN_PHONE, str[1]);
-                    contactValues.put(DBHelper.COLUMN_EMAIL, str[2]);
+                    contactValues.put(DBHelper.COLUMN_PHONE1, str[1]);
+                    for (int i = 2; i < 12; i++) {
+                        if (str[i] == null) str[i] = "";
+                        contactValues.put(DBHelper.PROJECTIONS[i], str[2]);
+                    }
                     cVVector.add(contactValues);
                 }
             }
@@ -431,7 +434,7 @@ public class MainActivity extends ActionBarActivity {
         SQLiteDatabase dbRead = db.getReadableDatabase();
         Cursor res =  dbRead.rawQuery("select * from " + DBHelper.TABLE_NAME, null);
         res.moveToFirst();
-        String[] cols = {DBHelper.COLUMN_NAME, DBHelper.COLUMN_PHONE, DBHelper.COLUMN_EMAIL};
+        String[] cols = {DBHelper.COLUMN_NAME, DBHelper.COLUMN_PHONE1, DBHelper.COLUMN_EMAIL1};
         while(!res.isAfterLast()){
             row = sheet1.createRow(countRow++);
 
@@ -525,8 +528,11 @@ public class MainActivity extends ActionBarActivity {
             while (cur.moveToNext()) {
                 String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
                 String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                String[] insert = new String[11];
+                int count = 0;
                 if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-                    System.out.println("name : " + name + ", ID : " + id);
+//                    System.out.println("name : " + name + ", ID : " + id);
+                    insert[count++] = name;
 
                     // get the phone number
                     Cursor pCur = cr.query(ContactsContract.Data.CONTENT_URI,
@@ -538,15 +544,16 @@ public class MainActivity extends ActionBarActivity {
                     while (pCur.moveToNext()) {
                         String phone = pCur.getString(
                                 pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        System.out.println("phone" + phone);
+//                        System.out.println("phone" + phone);
+                        insert[count++] = phone;
                     }
                     pCur.close();
 
-
+                    count = 6;
                      //get email and type
 
                     Cursor emailCur = cr.query(ContactsContract.Data.CONTENT_URI,
-                            new String[] {CommonDataKinds.Email.ADDRESS, CommonDataKinds.Email.TYPE},
+                            new String[] {CommonDataKinds.Email.ADDRESS},
                             ContactsContract.Data.RAW_CONTACT_ID + "=?" + " AND "
                                     + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE + "'",
                             new String[] {String.valueOf(id)}, null);
@@ -555,12 +562,11 @@ public class MainActivity extends ActionBarActivity {
                         // if the email addresses were stored in an array
                         String email = emailCur.getString(
                                 emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-                        String emailType = emailCur.getString(
-                                emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.TYPE));
-
-                        System.out.println("Email " + email + " Email Type : " + emailType);
+//                        System.out.println("Email " + email);
+                        insert[count++] = email;
                     }
                     emailCur.close();
+                    db.insertContact(insert);
                 }
             }
         }

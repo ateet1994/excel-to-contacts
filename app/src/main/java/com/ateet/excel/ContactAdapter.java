@@ -30,7 +30,7 @@ public class ContactAdapter extends CursorAdapter{
         ViewHolder viewHolder = (ViewHolder) view.getTag();
         viewHolder.nameView.setText(cursor.getString(DBHelper.COL_NAME));
         viewHolder.nameView.setTextColor(Color.BLACK);
-        viewHolder.phoneView.setText(cursor.getString(DBHelper.COL_PHONE));
+        viewHolder.phoneView.setText(cursor.getString(DBHelper.COL_PHONE1));
         viewHolder.phoneView.setTextColor(Color.GRAY);
     }
 

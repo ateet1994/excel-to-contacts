@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 public class DisplayContact extends ActionBarActivity {
 
-    EditText name, phone, email;
+    EditText name, phone1, email1, phone2, email2, phone3, email3, phone4, email4, phone5, email5;
     DBHelper db;
     Button save;
     @Override
@@ -22,9 +22,17 @@ public class DisplayContact extends ActionBarActivity {
         setContentView(R.layout.contact_info);
 
         name = (EditText) findViewById(R.id.editText);
-        phone = (EditText) findViewById(R.id.editText2);
+        phone1 = (EditText) findViewById(R.id.editText2);
+        phone2 = (EditText) findViewById(R.id.editText3);
+        phone3 = (EditText) findViewById(R.id.editText4);
+        phone4 = (EditText) findViewById(R.id.editText5);
+        phone5 = (EditText) findViewById(R.id.editText6);
 
-        email = (EditText) findViewById(R.id.editText3);
+        email1 = (EditText) findViewById(R.id.editText7);
+        email2 = (EditText) findViewById(R.id.editText8);
+        email3 = (EditText) findViewById(R.id.editText9);
+        email4 = (EditText) findViewById(R.id.editText10);
+        email5 = (EditText) findViewById(R.id.editText11);
         db = new DBHelper(this);
 
         final long id = getIntent().getLongExtra("idEdit", -1);
@@ -32,13 +40,22 @@ public class DisplayContact extends ActionBarActivity {
             Cursor res = db.getData(id);
             res.moveToFirst();
             name.setText(res.getString(res.getColumnIndex(DBHelper.COLUMN_NAME)));
-            phone.setText(res.getString(res.getColumnIndex(DBHelper.COLUMN_PHONE)));
+            phone1.setText(res.getString(DBHelper.COL_PHONE1));
+            phone2.setText(res.getString(DBHelper.COL_PHONE2));
+            phone3.setText(res.getString(DBHelper.COL_PHONE3));
+            phone4.setText(res.getString(DBHelper.COL_PHONE4));
+            phone5.setText(res.getString(DBHelper.COL_PHONE5));
 
-            email.setText(res.getString(res.getColumnIndex(DBHelper.COLUMN_EMAIL)));
+            email1.setText(res.getString(DBHelper.COL_EMAIL1));
+            email2.setText(res.getString(DBHelper.COL_EMAIL2));
+            email3.setText(res.getString(DBHelper.COL_EMAIL3));
+            email4.setText(res.getString(DBHelper.COL_EMAIL4));
+            email5.setText(res.getString(DBHelper.COL_EMAIL5));
+
             res.close();
         }
         save = (Button) findViewById(R.id.save_contact);
-        save.setOnClickListener(new View.OnClickListener() {
+        /*save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String n = name.getText().toString().trim();
@@ -58,7 +75,7 @@ public class DisplayContact extends ActionBarActivity {
                     //finish();
                 }
             }
-        });
+        });*/
 
     }
 
