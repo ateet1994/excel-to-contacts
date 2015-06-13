@@ -2,6 +2,7 @@ package com.ateet.excel;
 
 import android.app.AlertDialog;
 import android.app.SearchManager;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +13,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -24,7 +26,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-
+import android.provider.ContactsContract.CommonDataKinds;
 import android.widget.Toast;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -53,7 +55,7 @@ import java.util.Vector;
 
 
 public class MainActivity extends ActionBarActivity {
-    
+
     private ContactAdapter mContactAdapter;
     private Cursor mCursor;
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -166,6 +168,9 @@ public class MainActivity extends ActionBarActivity {
                 return  true;
             case R.id.read_file:
                 getFile();
+                return true;
+            case R.id.writePB:
+                readContactsFromPhoneBook();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -509,6 +514,57 @@ public class MainActivity extends ActionBarActivity {
             mContactAdapter.changeCursor(mCursor);
         }
         else mContactAdapter.changeCursor(null);
+    }
+
+    public void readContactsFromPhoneBook() {
+        ContentResolver cr = getContentResolver();
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
+                null, null, null, null);
+
+        if (cur.getCount() > 0) {
+            while (cur.moveToNext()) {
+                String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+                String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+                    System.out.println("name : " + name + ", ID : " + id);
+
+                    // get the phone number
+                    Cursor pCur = cr.query(ContactsContract.Data.CONTENT_URI,
+                            new String[] {CommonDataKinds.Phone.NUMBER},
+                            ContactsContract.Data.RAW_CONTACT_ID + "=?" + " AND "
+                                    + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'",
+                            new String[] {String.valueOf(id)}, null);
+
+                    while (pCur.moveToNext()) {
+                        String phone = pCur.getString(
+                                pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        System.out.println("phone" + phone);
+                    }
+                    pCur.close();
+
+
+                     //get email and type
+
+                    Cursor emailCur = cr.query(ContactsContract.Data.CONTENT_URI,
+                            new String[] {CommonDataKinds.Email.ADDRESS, CommonDataKinds.Email.TYPE},
+                            ContactsContract.Data.RAW_CONTACT_ID + "=?" + " AND "
+                                    + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE + "'",
+                            new String[] {String.valueOf(id)}, null);
+                    while (emailCur.moveToNext()) {
+                        // This would allow you get several email addresses
+                        // if the email addresses were stored in an array
+                        String email = emailCur.getString(
+                                emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+                        String emailType = emailCur.getString(
+                                emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.TYPE));
+
+                        System.out.println("Email " + email + " Email Type : " + emailType);
+                    }
+                    emailCur.close();
+                }
+            }
+        }
+        cur.close();
     }
 }
 
