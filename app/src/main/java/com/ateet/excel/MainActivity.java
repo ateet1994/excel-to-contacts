@@ -308,7 +308,7 @@ public class MainActivity extends ActionBarActivity {
             /** We now need something to iterate through the cells.**/
             Iterator rowIter = mySheet.rowIterator();
 
-            
+            if (rowIter.hasNext()) rowIter.next();
             while(rowIter.hasNext()){
                 HSSFRow myRow = (HSSFRow) rowIter.next();
                 Iterator cellIter = myRow.cellIterator();
@@ -326,9 +326,9 @@ public class MainActivity extends ActionBarActivity {
 //                    db.insertContact(str[0], str[1], str[2]);
                     contactValues.put(DBHelper.COLUMN_NAME, str[0]);
                     contactValues.put(DBHelper.COLUMN_PHONE1, str[1]);
-                    for (int i = 2; i < 12; i++) {
+                    for (int i = 2; i < 11; i++) {
                         if (str[i] == null) str[i] = "";
-                        contactValues.put(DBHelper.PROJECTIONS[i], str[2]);
+                        contactValues.put(DBHelper.PROJECTIONS[i], str[i]);
                     }
                     cVVector.add(contactValues);
                 }
