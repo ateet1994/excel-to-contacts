@@ -609,6 +609,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             updateList();
+            Toast.makeText(getApplicationContext(), "Reading complete", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -675,6 +676,12 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         protected Void doInBackground(Void... params) {
             writeContactsToPhoneBook();
             return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            Toast.makeText(getApplicationContext(), getExternalFilesDir(null) + "export.xls", Toast.LENGTH_LONG).show();
+            super.onPostExecute(aVoid);
         }
     }
 }

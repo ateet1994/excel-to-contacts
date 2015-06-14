@@ -82,10 +82,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 COLUMN_ID + " INTEGER PRIMARY KEY, " +
                 COLUMN_NAME + " TEXT NOT NULL, " +
                 COLUMN_PHONE1 + " TEXT UNIQUE NOT NULL, " +
-                        COLUMN_PHONE2 + " TEXT UNIQUE, " +
-                        COLUMN_PHONE3 + " TEXT UNIQUE, " +
-                        COLUMN_PHONE4 + " TEXT UNIQUE, " +
-                        COLUMN_PHONE5 + " TEXT UNIQUE, " +
+                        COLUMN_PHONE2 + " TEXT, " +
+                        COLUMN_PHONE3 + " TEXT, " +
+                        COLUMN_PHONE4 + " TEXT, " +
+                        COLUMN_PHONE5 + " TEXT, " +
                 COLUMN_EMAIL1 + " text, " +
                         COLUMN_EMAIL2 + " text," +
                         COLUMN_EMAIL3 + " text," +
