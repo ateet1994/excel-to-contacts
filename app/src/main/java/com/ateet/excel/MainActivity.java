@@ -2,9 +2,6 @@ package com.ateet.excel;
 
 import android.app.AlertDialog;
 import android.app.SearchManager;
-import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,16 +9,13 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.support.v7.widget.SearchView;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,32 +23,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.provider.ContactsContract.CommonDataKinds;
 import android.widget.Toast;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-
-
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.Vector;
 
 
 public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuItemClickListener {
@@ -160,8 +132,11 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                 return true;
             case R.id.download:
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-                String url = sharedPref.getString(getString(R.string.pref_download_key), "Input a URL in settings");
-                new DownloadExcel().execute(url);
+                String url = sharedPref.getString(getString(R.string.pref_download_key), "No URL");
+                if (url == null || url.length() == 0)
+                    Toast.makeText(getApplicationContext(), "Input a URL(with protocol) in settings", Toast.LENGTH_LONG).show();
+                else
+                    new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.DOWNLOAD), url);
                 return true;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -350,76 +325,6 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
             default:
                 return false;
         }
-    }
-
-    class DownloadExcel extends AsyncTask<String, String, String> {
-
-        private String message, filename;
-        private boolean success;
-
-        /**
-         * Before starting background thread
-         * Show Progress Bar Dialog
-         */
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        /**
-         * Downloading file in background thread
-         */
-        @Override
-        protected String doInBackground(String... f_url) {
-            int count;
-            try {
-                String url_name = f_url[0];
-                URL url = new URL(url_name);
-                URLConnection connection = url.openConnection();
-                connection.connect();
-                if (!connection.getContentType().contains("excel"))
-                    throw new Exception("Input file should be a .xls file");
-                filename = url_name.substring(url_name.lastIndexOf('/'));
-                // input stream to read file - with 8k buffer
-                InputStream input = new BufferedInputStream(url.openStream(), 8192);
-
-                // Output stream to write file
-                OutputStream output = new FileOutputStream(getExternalFilesDir(null) + filename);
-
-                byte data[] = new byte[1024];
-
-                while ((count = input.read(data)) != -1) {
-                    // writing data to file
-                    output.write(data, 0, count);
-                }
-
-                // flushing output
-                output.flush();
-
-                // closing streams
-                output.close();
-                input.close();
-                message = "Download Complete";
-                success = true;
-
-            } catch (Exception e) {
-                Log.e("Error: ", e.getMessage());
-                message = e.getMessage();
-                success = false;
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String file_url) {
-            if (success) {
-                new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_XLS), getExternalFilesDir(null) + filename);
-                updateList();
-            }
-            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-        }
-
     }
 
     public static void updateList() {

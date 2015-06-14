@@ -22,10 +22,14 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
@@ -39,6 +43,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
     public static final int WRITE_XLS = 1;
     public static final int READ_PHONEBOOK = 2;
     public static final int WRITE_PHONEBOOK = 3;
+    public static final int DOWNLOAD = 4;
 
     private boolean update;
     private boolean success;
@@ -56,7 +61,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
             Log.e("ateet", "Storage not available or read only");
             return;
         }
-        Vector<ContentValues> cVVector = new Vector<ContentValues>();
+        Vector<ContentValues> cVVector = new Vector<>();
 
         try {
             // Creating Input Stream
@@ -188,7 +193,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 null, null, null, null);
         try {
             if (cur.getCount() > 0) {
-                Vector<ContentValues> cVVector = new Vector<ContentValues>();
+                Vector<ContentValues> cVVector = new Vector<>();
                 while (cur.moveToNext()) {
                     String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID));
                     String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
@@ -313,9 +318,56 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
         message = "Write Successful";
     }
 
+    private String downloadXls(String urlString) {
+        int count;
+        String filename, location;
+        try {
+            URL url = new URL(urlString);
+            URLConnection connection = url.openConnection();
+            connection.connect();
+            if (!connection.getContentType().contains("excel"))
+                throw new Exception("Input file should be a .xls file");
+            filename = urlString.substring(urlString.lastIndexOf('/'));
+            location = mContext.getExternalFilesDir(null) + filename;
+            // input stream to read file - with 8k buffer
+            InputStream input = new BufferedInputStream(url.openStream(), 8192);
+
+            // Output stream to write file
+            OutputStream output = new FileOutputStream(location);
+
+            byte data[] = new byte[1024];
+
+            while ((count = input.read(data)) != -1) {
+                // writing data to file
+                output.write(data, 0, count);
+            }
+
+            // flushing output
+            output.flush();
+
+            // closing streams
+            output.close();
+            input.close();
+            message = location;
+            success = true;
+            return location;
+
+        } catch (Exception e) {
+            message = e.getMessage();
+            success = false;
+            return null;
+        }
+    }
+
     @Override
     protected Void doInBackground(String... params) {
         switch (Integer.parseInt(params[0])) {
+            case DOWNLOAD:
+                params[1] = downloadXls(params[1]);
+                update = true;
+                if (params[1] == null)
+                    break;
+
             case READ_XLS:
                 readXls(params[1]);
                 update = true;
@@ -332,6 +384,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 writeContactsToPhoneBook();
                 update = false;
                 break;
+
         }
         return null;
     }
