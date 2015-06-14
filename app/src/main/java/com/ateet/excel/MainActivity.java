@@ -197,7 +197,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                         String excelFile;
                         excelFile = new File(data.getStringExtra(FilePickerActivity.EXTRA_FILE_PATH)).getPath();
                         Toast.makeText(getApplicationContext(), excelFile, Toast.LENGTH_SHORT).show();
-                        new RWAsyncTask(getApplicationContext()).execute("0", excelFile);
+                        new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_XLS), excelFile);
                         updateList();
                     }
                     break;
@@ -391,10 +391,9 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                 getFile();
                 return true;
             case R.id.write:
-                new WriteXLS().execute();
+                new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.WRITE_XLS));
                 return true;
             case R.id.readPB:
-                new ReadPB().execute();
                 return true;
             case R.id.writePB:
                 writeContactsToPhoneBook();
@@ -466,7 +465,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         @Override
         protected void onPostExecute(String file_url) {
             if (success) {
-                new RWAsyncTask(getApplicationContext()).execute("0", getExternalFilesDir(null) + filename);
+                new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_XLS), getExternalFilesDir(null) + filename);
                 updateList();
             }
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
@@ -474,59 +473,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
 
     }
 
-    private void writeXls(Context context) {
-        if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
-            Log.e("ateet", "Storage not available or read only");
-            return;
-        }
 
-        Workbook wb = new HSSFWorkbook();
-        Cell c;
-        Row row;
-        int countRow = 0;
-
-        Sheet sheet1;
-        sheet1 = wb.createSheet("Sheet1");
-        // Generate column headings
-        SQLiteDatabase dbRead = db.getReadableDatabase();
-        Cursor res = dbRead.rawQuery("select * from " + DBHelper.TABLE_NAME, null);
-        res.moveToFirst();
-        String[] cols = DBHelper.PROJECTIONS;
-        while (!res.isAfterLast()) {
-            row = sheet1.createRow(countRow++);
-
-            for (int countCol = 1; countCol < 12; countCol++) {
-                c = row.createCell(countCol - 1);
-                if (countRow == 1)
-                    c.setCellValue(cols[countCol]);
-                else
-                c.setCellValue(res.getString(countCol));
-            }
-
-            res.moveToNext();
-        }
-        res.close();
-        File file = new File(context.getExternalFilesDir(null), "export.xls");
-        FileOutputStream os = null;
-
-        try {
-            os = new FileOutputStream(file);
-            wb.write(os);
-            Log.w("FileUtils", "Writing file" + file);
-
-        } catch (IOException e) {
-            Log.w("FileUtils", "Error writing " + file, e);
-        } catch (Exception e) {
-            Log.w("FileUtils", "Failed to save file", e);
-        } finally {
-            try {
-                if (null != os)
-                    os.close();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-    }
 
 
     public static void updateList() {
@@ -567,35 +514,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
             mContactAdapter.changeCursor(mCursor);
         } else mContactAdapter.changeCursor(null);
     }
-
-
-    public boolean isExternalStorageReadOnly() {
-        String extStorageState = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState);
-    }
-
-    public boolean isExternalStorageAvailable() {
-        String extStorageState = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(extStorageState);
-    }
-
-    class ReadPB extends AsyncTask<Void, Void, Void>
-    {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            readContactsFromPhoneBook();
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            updateList();
-            Toast.makeText(getApplicationContext(), "Reading complete", Toast.LENGTH_SHORT).show();
-        }
-    }
-
+    
     public void writeContactsToPhoneBook() {
         ArrayList<ContentProviderOperation> ops = new ArrayList<>();
         mCursor.moveToFirst();
@@ -650,21 +569,6 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                 Toast.makeText(getApplicationContext(), "Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
-        }
-    }
-    class WriteXLS extends AsyncTask<Void, Void, Void>
-    {
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            writeXls(getApplicationContext());
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            Toast.makeText(getApplicationContext(), getExternalFilesDir(null) + "export.xls", Toast.LENGTH_LONG).show();
-            super.onPostExecute(aVoid);
         }
     }
 }

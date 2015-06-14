@@ -2,18 +2,26 @@ package com.ateet.excel;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.Vector;
@@ -29,6 +37,8 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
     public static final int WRITE_PHONEBOOK = 3;
 
     private boolean update;
+    private boolean success;
+    private String message;
 
 
     public RWAsyncTask(Context context) {
@@ -87,16 +97,73 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                         contactValues.put(DBHelper.PROJECTIONS[i + 1], str[i]);
                     }
                     cVVector.add(contactValues);
+                    success = true;
+                    message = "Read Successful";
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+            success = false;
+            message = e.getMessage();
             //Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
         } finally {
             if (cVVector.size() > 0) {
                 ContentValues[] cvArray = new ContentValues[cVVector.size()];
                 cVVector.toArray(cvArray);
                 db.bulkInsert(cvArray);
+            }
+            else success = false;
+        }
+    }
+
+    private void writeXls() {
+        if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
+            Log.e("ateet", "Storage not available or read only");
+            return;
+        }
+
+        Workbook wb = new HSSFWorkbook();
+        Cell c;
+        Row row;
+        int countRow = 0;
+
+        Sheet sheet1;
+        sheet1 = wb.createSheet("Sheet1");
+        // Generate column headings
+        SQLiteDatabase dbRead = db.getReadableDatabase();
+        Cursor res = dbRead.rawQuery("select * from " + DBHelper.TABLE_NAME, null);
+        res.moveToFirst();
+        String[] cols = DBHelper.PROJECTIONS;
+        while (!res.isAfterLast()) {
+            row = sheet1.createRow(countRow++);
+
+            for (int countCol = 1; countCol < 12; countCol++) {
+                c = row.createCell(countCol - 1);
+                if (countRow == 1)
+                    c.setCellValue(cols[countCol]);
+                else
+                    c.setCellValue(res.getString(countCol));
+            }
+
+            res.moveToNext();
+        }
+        res.close();
+        File file = new File(mContext.getExternalFilesDir(null), "export.xls");
+        FileOutputStream os = null;
+        success = true;
+        message = mContext.getExternalFilesDir(null) + "/export.xls";
+        try {
+            os = new FileOutputStream(file);
+            wb.write(os);
+        } catch (Exception e) {
+            success = false;
+            message = e.getMessage();
+        } finally {
+            try {
+                if (null != os)
+                    os.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
     }
@@ -117,6 +184,11 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
             case READ_XLS:
                 readXls(params[1]);
                 update = true;
+                break;
+            case WRITE_XLS:
+                writeXls();
+                update = false;
+                break;
         }
         return null;
     }
@@ -124,9 +196,12 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        if(update) {
-            MainActivity.updateList();
-            update = false;
+        if (success) {
+            if (update) {
+                MainActivity.updateList();
+                update = false;
+            }
         }
+        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
     }
 }
