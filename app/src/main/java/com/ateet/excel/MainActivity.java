@@ -59,14 +59,13 @@ import java.util.Vector;
 
 public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuItemClickListener {
 
-    private ContactAdapter mContactAdapter;
-    private Cursor mCursor;
+    private static ContactAdapter mContactAdapter;
+    private static Cursor mCursor;
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int CREATE_CONTACT = 1;
     private static final int EDIT_CONTACT = 2;
     private static final int REQUEST_PICK_FILE = 3;
-    private DBHelper db;
-    private Thread mThread;
+    private static DBHelper db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -198,7 +197,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                         String excelFile;
                         excelFile = new File(data.getStringExtra(FilePickerActivity.EXTRA_FILE_PATH)).getPath();
                         Toast.makeText(getApplicationContext(), excelFile, Toast.LENGTH_SHORT).show();
-                        readXls(MainActivity.this, excelFile);
+                        new RWAsyncTask(getApplicationContext()).execute("0", excelFile);
                         updateList();
                     }
                     break;
@@ -283,7 +282,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
             if (item != null && item.length() > 0)
                 flag = false;
         if (flag) {
-            Toast.makeText(getApplicationContext(), "Fill atleast one field", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), "Fill at least one field", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -317,71 +316,6 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
 
         // Start the activity
         startActivityForResult(intent, REQUEST_PICK_FILE);
-    }
-
-    private void readXls(MainActivity context, String filename) {
-
-        if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
-            Log.e("ateet", "Storage not available or read only");
-            return;
-        }
-        Vector<ContentValues> cVVector = new Vector<ContentValues>();
-
-        try {
-            // Creating Input Stream
-            InputStream myInput;
-
-
-            File file = new File(filename);
-            myInput = new FileInputStream(file);
-
-            // Create a POIFSFileSystem object
-            POIFSFileSystem myFileSystem = new POIFSFileSystem(myInput);
-
-            // Create a workbook using the File System
-            HSSFWorkbook myWorkBook = new HSSFWorkbook(myFileSystem);
-
-            // Get the first sheet from workbook
-            HSSFSheet mySheet = myWorkBook.getSheetAt(0);
-
-            /** We now need something to iterate through the cells.**/
-            Iterator rowIter = mySheet.rowIterator();
-
-            if (rowIter.hasNext()) rowIter.next();
-            while (rowIter.hasNext()) {
-                HSSFRow myRow = (HSSFRow) rowIter.next();
-                Iterator cellIter = myRow.cellIterator();
-                String[] str = new String[11];
-                short count = 0;
-                while (cellIter.hasNext()) {
-                    HSSFCell myCell = (HSSFCell) cellIter.next();
-                    myCell.setCellType(HSSFCell.CELL_TYPE_STRING);
-                    String s = myCell.getStringCellValue();
-//                    if (s != null && s.length() > 0)
-                    str[count++] = s;
-                }
-                ContentValues contactValues = new ContentValues();
-                if (str[0] != null && str[1] != null && str[0].length() > 0 && str[1].length() > 0) {
-//                    db.insertContact(str);
-                    contactValues.put(DBHelper.COLUMN_NAME, str[0]);
-                    contactValues.put(DBHelper.COLUMN_PHONE1, str[1]);
-                    for (int i = 2; i < 11; i++) {
-                        if (str[i] == null) str[i] = "";
-                        contactValues.put(DBHelper.PROJECTIONS[i + 1], str[i]);
-                    }
-                    cVVector.add(contactValues);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            //Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-        } finally {
-            if (cVVector.size() > 0) {
-                ContentValues[] cvArray = new ContentValues[cVVector.size()];
-                cVVector.toArray(cvArray);
-                db.bulkInsert(cvArray);
-            }
-        }
     }
 
     public void readContactsFromPhoneBook() {
@@ -532,7 +466,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         @Override
         protected void onPostExecute(String file_url) {
             if (success) {
-                readXls(MainActivity.this, getExternalFilesDir(null) + filename);
+                new RWAsyncTask(getApplicationContext()).execute("0", getExternalFilesDir(null) + filename);
                 updateList();
             }
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
@@ -594,17 +528,8 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         }
     }
 
-    public static boolean isExternalStorageReadOnly() {
-        String extStorageState = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState);
-    }
 
-    public static boolean isExternalStorageAvailable() {
-        String extStorageState = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals(extStorageState);
-    }
-
-    private void updateList() {
+    public static void updateList() {
         mCursor = db.getAllContacts();
         mContactAdapter.changeCursor(mCursor);
     }
@@ -644,6 +569,15 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
     }
 
 
+    public boolean isExternalStorageReadOnly() {
+        String extStorageState = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED_READ_ONLY.equals(extStorageState);
+    }
+
+    public boolean isExternalStorageAvailable() {
+        String extStorageState = Environment.getExternalStorageState();
+        return Environment.MEDIA_MOUNTED.equals(extStorageState);
+    }
 
     class ReadPB extends AsyncTask<Void, Void, Void>
     {
