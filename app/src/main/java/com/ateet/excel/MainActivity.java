@@ -317,73 +317,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         // Start the activity
         startActivityForResult(intent, REQUEST_PICK_FILE);
     }
-
-    public void readContactsFromPhoneBook() {
-        ContentResolver cr = getContentResolver();
-        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
-                null, null, null, null);
-
-        if (cur.getCount() > 0) {
-            Vector<ContentValues> cVVector = new Vector<ContentValues>();
-            while (cur.moveToNext()) {
-                String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID));
-                String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-                String[] insert = new String[11];
-                ContentValues contactValues = new ContentValues();
-                int count = 0;
-                if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-//                    System.out.println("name : " + name + ", ID : " + id);
-                    insert[count++] = name;
-
-                    // get the phone number
-                    Cursor pCur = cr.query(ContactsContract.Data.CONTENT_URI,
-                            new String[]{CommonDataKinds.Phone.NUMBER},
-                            ContactsContract.Data.RAW_CONTACT_ID + "=?" + " AND "
-                                    + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'",
-                            new String[]{String.valueOf(id)}, null);
-
-                    while (pCur.moveToNext()) {
-                        String phone = pCur.getString(
-                                pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-//                        System.out.println("phone" + phone);
-                        insert[count++] = phone;
-                    }
-                    pCur.close();
-
-                    count = 6;
-                    //get email and type
-
-                    Cursor emailCur = cr.query(ContactsContract.Data.CONTENT_URI,
-                            new String[]{CommonDataKinds.Email.ADDRESS},
-                            ContactsContract.Data.RAW_CONTACT_ID + "=?" + " AND "
-                                    + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE + "'",
-                            new String[]{String.valueOf(id)}, null);
-                    while (emailCur.moveToNext()) {
-                        // This would allow you get several email addresses
-                        // if the email addresses were stored in an array
-                        String email = emailCur.getString(
-                                emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-//                        System.out.println("Email " + email);
-                        insert[count++] = email;
-                    }
-                    emailCur.close();
-//                    db.insertContact(insert);
-                    for (int i = 0; i < 11; i++) {
-                        if (insert[i] == null) insert[i] = "";
-                        contactValues.put(DBHelper.PROJECTIONS[i + 1], insert[i]);
-                    }
-                    cVVector.add(contactValues);
-                }
-            }
-            if (cVVector.size() > 0) {
-                ContentValues[] cvArray = new ContentValues[cVVector.size()];
-                cVVector.toArray(cvArray);
-                db.bulkInsert(cvArray);
-            }
-        }
-        cur.close();
-    }
-
+    
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
@@ -394,6 +328,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                 new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.WRITE_XLS));
                 return true;
             case R.id.readPB:
+                new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_PHONEBOOK));
                 return true;
             case R.id.writePB:
                 writeContactsToPhoneBook();
@@ -473,14 +408,10 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
 
     }
 
-
-
-
     public static void updateList() {
         mCursor = db.getAllContacts();
         mContactAdapter.changeCursor(mCursor);
     }
-
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -514,7 +445,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
             mContactAdapter.changeCursor(mCursor);
         } else mContactAdapter.changeCursor(null);
     }
-    
+
     public void writeContactsToPhoneBook() {
         ArrayList<ContentProviderOperation> ops = new ArrayList<>();
         mCursor.moveToFirst();

@@ -1,11 +1,13 @@
 package com.ateet.excel;
 
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -178,6 +180,78 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
         return Environment.MEDIA_MOUNTED.equals(extStorageState);
     }
 
+    public void readContactsFromPhoneBook() {
+        ContentResolver cr = mContext.getContentResolver();
+        Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
+                null, null, null, null);
+        try {
+            if (cur.getCount() > 0) {
+                Vector<ContentValues> cVVector = new Vector<ContentValues>();
+                while (cur.moveToNext()) {
+                    String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID));
+                    String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                    String[] insert = new String[11];
+                    ContentValues contactValues = new ContentValues();
+                    int count = 0;
+                    if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+//                    System.out.println("name : " + name + ", ID : " + id);
+                        insert[count++] = name;
+
+                        // get the phone number
+                        Cursor pCur = cr.query(ContactsContract.Data.CONTENT_URI,
+                                new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER},
+                                ContactsContract.Data.RAW_CONTACT_ID + "=?" + " AND "
+                                        + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "'",
+                                new String[]{String.valueOf(id)}, null);
+
+                        while (pCur.moveToNext()) {
+                            String phone = pCur.getString(
+                                    pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+//                        System.out.println("phone" + phone);
+                            insert[count++] = phone;
+                        }
+                        pCur.close();
+
+                        count = 6;
+                        //get email and type
+
+                        Cursor emailCur = cr.query(ContactsContract.Data.CONTENT_URI,
+                                new String[]{ContactsContract.CommonDataKinds.Email.ADDRESS},
+                                ContactsContract.Data.RAW_CONTACT_ID + "=?" + " AND "
+                                        + ContactsContract.Data.MIMETYPE + "='" + ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE + "'",
+                                new String[]{String.valueOf(id)}, null);
+                        while (emailCur.moveToNext()) {
+                            // This would allow you get several email addresses
+                            // if the email addresses were stored in an array
+                            String email = emailCur.getString(
+                                    emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
+//                        System.out.println("Email " + email);
+                            insert[count++] = email;
+                        }
+                        emailCur.close();
+//                    db.insertContact(insert);
+                        for (int i = 0; i < 11; i++) {
+                            if (insert[i] == null) insert[i] = "";
+                            contactValues.put(DBHelper.PROJECTIONS[i + 1], insert[i]);
+                        }
+                        cVVector.add(contactValues);
+                    }
+                }
+                if (cVVector.size() > 0) {
+                    ContentValues[] cvArray = new ContentValues[cVVector.size()];
+                    cVVector.toArray(cvArray);
+                    db.bulkInsert(cvArray);
+                }
+                success = true;
+                message = "Read Successful";
+            }
+            cur.close();
+        } catch (Exception e) {
+            success = false;
+            message = e.getMessage();
+        }
+    }
+
     @Override
     protected Void doInBackground(String... params) {
         switch (Integer.parseInt(params[0])) {
@@ -187,6 +261,13 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 break;
             case WRITE_XLS:
                 writeXls();
+                update = false;
+                break;
+            case READ_PHONEBOOK:
+                readContactsFromPhoneBook();
+                update = true;
+                break;
+            case WRITE_PHONEBOOK:
                 update = false;
                 break;
         }
