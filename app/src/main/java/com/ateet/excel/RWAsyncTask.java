@@ -1,5 +1,6 @@
 package com.ateet.excel;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -25,6 +26,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Vector;
 
@@ -99,8 +101,6 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                         contactValues.put(DBHelper.PROJECTIONS[i + 1], str[i]);
                     }
                     cVVector.add(contactValues);
-                    success = true;
-                    message = "Read Successful";
                 }
             }
         } catch (Exception e) {
@@ -113,6 +113,8 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 ContentValues[] cvArray = new ContentValues[cVVector.size()];
                 cVVector.toArray(cvArray);
                 db.bulkInsert(cvArray);
+                success = true;
+                message = "Read Successful";
             }
             else success = false;
         }
@@ -152,8 +154,6 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
         res.close();
         File file = new File(mContext.getExternalFilesDir(null), "export.xls");
         FileOutputStream os = null;
-        success = true;
-        message = mContext.getExternalFilesDir(null) + "/export.xls";
         try {
             os = new FileOutputStream(file);
             wb.write(os);
@@ -168,6 +168,8 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 ex.printStackTrace();
             }
         }
+        success = true;
+        message = mContext.getExternalFilesDir(null) + "/export.xls";
     }
 
     public boolean isExternalStorageReadOnly() {
@@ -242,14 +244,73 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                     cVVector.toArray(cvArray);
                     db.bulkInsert(cvArray);
                 }
-                success = true;
-                message = "Read Successful";
             }
             cur.close();
         } catch (Exception e) {
             success = false;
             message = e.getMessage();
         }
+        success = true;
+        message = "Read Successful";
+    }
+
+    public void writeContactsToPhoneBook() {
+        ArrayList<ContentProviderOperation> ops = new ArrayList<>();
+        Cursor cur = MainActivity.mCursor;
+        cur.moveToFirst();
+        for (int i = 0; i < cur.getCount(); i++) {
+
+            ops.add(ContentProviderOperation.newInsert(
+                    ContactsContract.RawContacts.CONTENT_URI)
+                    .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                    .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                    .build());
+
+
+            ops.add(ContentProviderOperation.newInsert(
+                    ContactsContract.Data.CONTENT_URI)
+                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                    .withValue(ContactsContract.Data.MIMETYPE,
+                            ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                    .withValue(
+                            ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
+                            cur.getString(DBHelper.COL_NAME)).build());
+            for (int j = 1; j < 6; j++) {
+                String phone = cur.getString(DBHelper.cols[j]);
+                if (phone != null)
+                    ops.add(ContentProviderOperation.
+                            newInsert(ContactsContract.Data.CONTENT_URI)
+                            .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                            .withValue(ContactsContract.Data.MIMETYPE,
+                                    ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                            .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, phone)
+                            .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
+                                    ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+                            .build());
+            }
+
+            for (int j = 6; j < 11; j++) {
+                String email = cur.getString(DBHelper.cols[j]);
+                if (email != null)
+                    ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                            .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                            .withValue(ContactsContract.Data.MIMETYPE,
+                                    ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+                            .withValue(ContactsContract.CommonDataKinds.Email.DATA, email)
+                            .withValue(ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK)
+                            .build());
+            }
+
+            try {
+                mContext.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+            } catch (Exception e) {
+                success = false;
+                message = e.getMessage();
+            }
+
+        }
+        success = true;
+        message = "Write Successful";
     }
 
     @Override
@@ -268,6 +329,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 update = true;
                 break;
             case WRITE_PHONEBOOK:
+                writeContactsToPhoneBook();
                 update = false;
                 break;
         }

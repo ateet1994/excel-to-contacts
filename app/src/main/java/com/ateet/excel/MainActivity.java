@@ -60,7 +60,7 @@ import java.util.Vector;
 public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuItemClickListener {
 
     private static ContactAdapter mContactAdapter;
-    private static Cursor mCursor;
+    static Cursor mCursor;
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int CREATE_CONTACT = 1;
     private static final int EDIT_CONTACT = 2;
@@ -174,8 +174,22 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                 popupMenu.show();
                 return true;
             case R.id.deleteall:
-                db.deleteAll();
-                updateList();
+                new AlertDialog.Builder(this)
+                        .setTitle("Delete All")
+                        .setMessage("Are you sure?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // continue with delete
+                                db.deleteAll();
+                                updateList();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // do nothing
+                            }
+                        })
+                        .show();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -317,7 +331,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         // Start the activity
         startActivityForResult(intent, REQUEST_PICK_FILE);
     }
-    
+
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
@@ -331,7 +345,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                 new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_PHONEBOOK));
                 return true;
             case R.id.writePB:
-                writeContactsToPhoneBook();
+                new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.WRITE_PHONEBOOK));
                 return true;
             default:
                 return false;
@@ -446,62 +460,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         } else mContactAdapter.changeCursor(null);
     }
 
-    public void writeContactsToPhoneBook() {
-        ArrayList<ContentProviderOperation> ops = new ArrayList<>();
-        mCursor.moveToFirst();
-        for (int i = 0; i < mCursor.getCount(); i++) {
 
-            ops.add(ContentProviderOperation.newInsert(
-                    ContactsContract.RawContacts.CONTENT_URI)
-                    .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
-                    .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
-                    .build());
-
-
-            ops.add(ContentProviderOperation.newInsert(
-                    ContactsContract.Data.CONTENT_URI)
-                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                    .withValue(ContactsContract.Data.MIMETYPE,
-                            ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
-                    .withValue(
-                            ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
-                            mCursor.getString(DBHelper.COL_NAME)).build());
-            for (int j = 1; j < 6; j++) {
-                String phone = mCursor.getString(DBHelper.cols[j]);
-                if (phone != null)
-                    ops.add(ContentProviderOperation.
-                        newInsert(ContactsContract.Data.CONTENT_URI)
-                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                        .withValue(ContactsContract.Data.MIMETYPE,
-                                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
-                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, phone)
-                        .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
-                                ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
-                        .build());
-            }
-
-            for (int j = 6; j < 11; j++) {
-                String email = mCursor.getString(DBHelper.cols[j]);
-                if (email != null)
-                        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
-                                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
-                                .withValue(ContactsContract.Data.MIMETYPE,
-                                        ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
-                                .withValue(ContactsContract.CommonDataKinds.Email.DATA, email)
-                                .withValue(ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK)
-                                .build());
-            }
-
-
-            try {
-                getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(getApplicationContext(), "Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-
-        }
-    }
 }
 
 
