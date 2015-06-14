@@ -6,6 +6,7 @@ import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -220,35 +221,46 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         mCursor.moveToPosition(info.position);
         switch (item.getItemId()) {
             case R.id.call:
-                String phone = "tel:" + mCursor.getString(DBHelper.COL_PHONE1);
-                Toast.makeText(getApplicationContext(), phone, Toast.LENGTH_SHORT).show();
-                Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(phone));
-                if (callIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(callIntent);
-                }
+                CharSequence[] seq = {
+                        mCursor.getString(DBHelper.COL_PHONE1),
+                        mCursor.getString(DBHelper.COL_PHONE2),
+                        mCursor.getString(DBHelper.COL_PHONE3),
+                        mCursor.getString(DBHelper.COL_PHONE4),
+                        mCursor.getString(DBHelper.COL_PHONE5)
+                };
+                Intent intent = new Intent(Intent.ACTION_CALL);
+                dialogForFieldSelection(seq, "tel:", intent);
+//                String phone = "tel:" + mCursor.getString(DBHelper.COL_PHONE1);
+//                Intent callIntent = new Intent(Intent.ACTION_CALL, Uri.parse(phone));
+//                if (callIntent.resolveActivity(getPackageManager()) != null) {
+//                    startActivity(callIntent);
+//                }
                 return true;
             case R.id.message:
-                Intent sendIntent = new Intent(Intent.ACTION_VIEW);
-                sendIntent.setData(Uri.parse("sms:" + mCursor.getString(DBHelper.COL_PHONE1)));
-                if (sendIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(sendIntent);
-                }
+                seq = new CharSequence[]{
+                        mCursor.getString(DBHelper.COL_PHONE1),
+                        mCursor.getString(DBHelper.COL_PHONE2),
+                        mCursor.getString(DBHelper.COL_PHONE3),
+                        mCursor.getString(DBHelper.COL_PHONE4),
+                        mCursor.getString(DBHelper.COL_PHONE5)
+                };
+                intent = new Intent(Intent.ACTION_VIEW);
+                dialogForFieldSelection(seq, "sms:", intent);
                 return true;
             case R.id.mail:
-                String mail = mCursor.getString(DBHelper.COL_EMAIL1);
-                if (mail.length() < 1) {
-                    Toast.makeText(getApplicationContext(), "Empty Email field", Toast.LENGTH_SHORT).show();
-                    return true;
-                }
 //                Intent emailIntent = new Intent(Intent.ACTION_SENDTO, Uri.fromParts(
 //                        "mailto",mCursor.getString(DBHelper.COL_EMAIL), null));
 //                startActivity(Intent.createChooser(emailIntent, "Send email..."));
 
-                Intent intent = new Intent(Intent.ACTION_SENDTO);
-                intent.setData(Uri.parse("mailto:" + mail));
-                if (intent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(intent);
-                }
+                intent = new Intent(Intent.ACTION_SENDTO);
+                seq = new CharSequence[]{
+                        mCursor.getString(DBHelper.COL_EMAIL1),
+                        mCursor.getString(DBHelper.COL_EMAIL2),
+                        mCursor.getString(DBHelper.COL_EMAIL3),
+                        mCursor.getString(DBHelper.COL_EMAIL4),
+                        mCursor.getString(DBHelper.COL_EMAIL5)
+                };
+                dialogForFieldSelection(seq, "mailto:", intent);
                 return true;
             case R.id.edit:
                 Intent editIntent = new Intent(MainActivity.this, DisplayContact.class);
@@ -265,6 +277,30 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
     }
 
 
+    private void dialogForFieldSelection(final CharSequence[] items, final String prot, final Intent intent) {
+        boolean flag = true;
+        for (CharSequence item : items)
+            if (item != null && item.length() > 0)
+                flag = false;
+        if (flag) {
+            Toast.makeText(getApplicationContext(), "Fill atleast one field", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Make your selection");
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                String action = prot + items[item];
+                intent.setData(Uri.parse(action));
+                if (intent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(intent);
+                }
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
     private void getFile() {
         Intent intent = new Intent(MainActivity.this, FilePickerActivity.class);
 
