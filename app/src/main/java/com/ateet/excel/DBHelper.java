@@ -167,6 +167,11 @@ public class DBHelper extends SQLiteOpenHelper {
         res.moveToFirst();
         return res;
     }
+    public void deleteAll() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_NAME, null, null);
+
+    }
 
     public void bulkInsert(ContentValues[] values) {
         SQLiteDatabase db = this.getWritableDatabase();

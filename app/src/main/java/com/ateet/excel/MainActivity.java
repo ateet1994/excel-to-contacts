@@ -176,6 +176,10 @@ public class MainActivity extends ActionBarActivity {
                 return true;
             case R.id.writePB:
                 new WritePB().execute();
+                return true;
+            case R.id.deleteall:
+                db.deleteAll();
+                updateList();
             default:
                 return super.onOptionsItemSelected(item);
         }

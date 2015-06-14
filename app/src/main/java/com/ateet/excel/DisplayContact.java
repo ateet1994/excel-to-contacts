@@ -55,17 +55,27 @@ public class DisplayContact extends ActionBarActivity {
             res.close();
         }
         save = (Button) findViewById(R.id.save_contact);
-        /*save.setOnClickListener(new View.OnClickListener() {
+        save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String n = name.getText().toString().trim();
-                String p = phone.getText().toString().trim();
+                String[] val = {
+                        name.getText().toString().trim(),
+                        phone1.getText().toString().trim(),
+                        phone2.getText().toString().trim(),
+                        phone3.getText().toString().trim(),
+                        phone4.getText().toString().trim(),
+                        phone5.getText().toString().trim(),
+                        email1.getText().toString().trim(),
+                        email2.getText().toString().trim(),
+                        email3.getText().toString().trim(),
+                        email4.getText().toString().trim(),
+                        email5.getText().toString().trim()
 
-                String em = email.getText().toString().trim();
-                if (n.length() > 0 && p.length() > 0 ) {
+                };
+                if (val[0].length() > 0 && val[1].length() > 0 ) {
                     if (id == -1)
-                      db.insertContact(n, p, em);
-                    else db.updateContact(id, n, p, em);
+                      db.insertContact(val);
+                    else db.updateContact(id, val);
                     setResult(RESULT_OK);
                     finish();
                 }
@@ -75,7 +85,7 @@ public class DisplayContact extends ActionBarActivity {
                     //finish();
                 }
             }
-        });*/
+        });
 
     }
 

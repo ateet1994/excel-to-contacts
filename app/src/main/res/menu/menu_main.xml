@@ -39,6 +39,8 @@
         android:orderInCategory="107" app:showAsAction="never" />
     <item android:id="@+id/readPB" android:title="Read2"
         android:orderInCategory="108" app:showAsAction="never" />
+    <item android:id="@+id/deleteall" android:title="Delete All"
+        android:orderInCategory="109" app:showAsAction="never" />
 
 
 </menu>
