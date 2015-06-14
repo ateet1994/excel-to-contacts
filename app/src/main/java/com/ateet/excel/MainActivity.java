@@ -171,9 +171,11 @@ public class MainActivity extends ActionBarActivity {
             case R.id.read_file:
                 getFile();
                 return true;
-            case R.id.writePB:
+            case R.id.readPB:
                 new ReadPB().execute();
                 return true;
+            case R.id.writePB:
+                writeContactsToPhoneBook();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -587,6 +589,63 @@ public class MainActivity extends ActionBarActivity {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             updateList();
+        }
+    }
+
+    public void writeContactsToPhoneBook() {
+        ArrayList<ContentProviderOperation> ops = new ArrayList<>();
+        mCursor.moveToFirst();
+        for (int i = 0; i < mCursor.getCount(); i++) {
+
+            ops.add(ContentProviderOperation.newInsert(
+                    ContactsContract.RawContacts.CONTENT_URI)
+                    .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
+                    .withValue(ContactsContract.RawContacts.ACCOUNT_NAME, null)
+                    .build());
+
+
+            ops.add(ContentProviderOperation.newInsert(
+                    ContactsContract.Data.CONTENT_URI)
+                    .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                    .withValue(ContactsContract.Data.MIMETYPE,
+                            ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)
+                    .withValue(
+                            ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME,
+                            mCursor.getString(DBHelper.COL_NAME)).build());
+            for (int j = 1; j < 6; j++) {
+                String phone = mCursor.getString(DBHelper.cols[j]);
+                if (phone != null)
+                    ops.add(ContentProviderOperation.
+                        newInsert(ContactsContract.Data.CONTENT_URI)
+                        .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                        .withValue(ContactsContract.Data.MIMETYPE,
+                                ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)
+                        .withValue(ContactsContract.CommonDataKinds.Phone.NUMBER, phone)
+                        .withValue(ContactsContract.CommonDataKinds.Phone.TYPE,
+                                ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE)
+                        .build());
+            }
+
+            for (int j = 6; j < 11; j++) {
+                String email = mCursor.getString(DBHelper.cols[j]);
+                if (email != null)
+                        ops.add(ContentProviderOperation.newInsert(ContactsContract.Data.CONTENT_URI)
+                                .withValueBackReference(ContactsContract.Data.RAW_CONTACT_ID, 0)
+                                .withValue(ContactsContract.Data.MIMETYPE,
+                                        ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE)
+                                .withValue(ContactsContract.CommonDataKinds.Email.DATA, email)
+                                .withValue(ContactsContract.CommonDataKinds.Email.TYPE, ContactsContract.CommonDataKinds.Email.TYPE_WORK)
+                                .build());
+            }
+
+
+            try {
+                getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), "Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
         }
     }
 }

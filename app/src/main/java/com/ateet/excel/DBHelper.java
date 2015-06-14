@@ -57,6 +57,20 @@ public class DBHelper extends SQLiteOpenHelper {
             COLUMN_EMAIL5
     };
 
+    public static final int[] cols = {
+            COL_NAME,
+            COL_PHONE1,
+            COL_PHONE2,
+            COL_PHONE3,
+            COL_PHONE4,
+            COL_PHONE5,
+            COL_EMAIL1,
+            COL_EMAIL2,
+            COL_EMAIL3,
+            COL_EMAIL4,
+            COL_EMAIL5
+    };
+
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, 1);
     }
@@ -148,8 +162,8 @@ public class DBHelper extends SQLiteOpenHelper {
     public Cursor getAllContacts()
     {
         SQLiteDatabase db = this.getReadableDatabase();
-//        String sortOrder = COLUMN_NAME + " ASC";
-        Cursor res =  db.query(TABLE_NAME, PROJECTIONS, null, null, null, null, null);
+        String sortOrder = COLUMN_NAME + " ASC";
+        Cursor res =  db.query(TABLE_NAME, PROJECTIONS, null, null, null, null, sortOrder);
         res.moveToFirst();
         return res;
     }

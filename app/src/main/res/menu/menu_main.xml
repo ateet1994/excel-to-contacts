@@ -34,8 +34,11 @@
     <item android:id="@+id/action_settings" android:title="Settings"
         android:orderInCategory="106" app:showAsAction="ifRoom"
         android:icon="@drawable/ic_menu_settings_holo_light"/>
+
     <item android:id="@+id/writePB" android:title="Write2"
         android:orderInCategory="107" app:showAsAction="never" />
+    <item android:id="@+id/readPB" android:title="Read2"
+        android:orderInCategory="108" app:showAsAction="never" />
 
 
 </menu>
