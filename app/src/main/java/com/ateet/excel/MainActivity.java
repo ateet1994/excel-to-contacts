@@ -326,12 +326,12 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                 }
                 ContentValues contactValues = new ContentValues();
                 if (str[0] != null && str[1] != null && str[0].length() > 0 && str[1].length() > 0) {
-//                    db.insertContact(str[0], str[1], str[2]);
+//                    db.insertContact(str);
                     contactValues.put(DBHelper.COLUMN_NAME, str[0]);
                     contactValues.put(DBHelper.COLUMN_PHONE1, str[1]);
                     for (int i = 2; i < 11; i++) {
                         if (str[i] == null) str[i] = "";
-                        contactValues.put(DBHelper.PROJECTIONS[i], str[i]);
+                        contactValues.put(DBHelper.PROJECTIONS[i + 1], str[i]);
                     }
                     cVVector.add(contactValues);
                 }
