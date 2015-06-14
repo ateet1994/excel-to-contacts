@@ -162,7 +162,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public Cursor getAllContacts()
     {
         SQLiteDatabase db = this.getReadableDatabase();
-        String sortOrder = COLUMN_NAME + " ASC";
+        String sortOrder = COLUMN_NAME + " COLLATE NOCASE";
         Cursor res =  db.query(TABLE_NAME, PROJECTIONS, null, null, null, null, sortOrder);
         res.moveToFirst();
         return res;

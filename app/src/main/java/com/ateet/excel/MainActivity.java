@@ -17,6 +17,7 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.support.v7.widget.SearchView;
 import android.util.Log;
@@ -55,7 +56,7 @@ import java.util.Iterator;
 import java.util.Vector;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuItemClickListener {
 
     private ContactAdapter mContactAdapter;
     private Cursor mCursor;
@@ -162,20 +163,15 @@ public class MainActivity extends ActionBarActivity {
                 String url = sharedPref.getString(getString(R.string.pref_download_key), "Input a URL in settings");
                 new DownloadExcel().execute(url);
                 return true;
-            case R.id.write:
-                writeXls(getApplicationContext());
-                return true;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
                 return true;
-            case R.id.read_file:
-                getFile();
-                return true;
-            case R.id.readPB:
-                new ReadPB().execute();
-                return true;
-            case R.id.writePB:
-                new WritePB().execute();
+            case R.id.core:
+                View view2 = findViewById(R.id.core);
+                PopupMenu popupMenu = new PopupMenu(MainActivity.this, view2);
+                popupMenu.setOnMenuItemClickListener(MainActivity.this);
+                popupMenu.inflate(R.menu.popupmenu);
+                popupMenu.show();
                 return true;
             case R.id.deleteall:
                 db.deleteAll();
@@ -350,6 +346,26 @@ public class MainActivity extends ActionBarActivity {
                 cVVector.toArray(cvArray);
                 db.bulkInsert(cvArray);
             }
+        }
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.read_file:
+                getFile();
+                return true;
+            case R.id.write:
+                writeXls(getApplicationContext());
+                return true;
+            case R.id.readPB:
+                new ReadPB().execute();
+                return true;
+            case R.id.writePB:
+                new WritePB().execute();
+                return true;
+            default:
+                return false;
         }
     }
 

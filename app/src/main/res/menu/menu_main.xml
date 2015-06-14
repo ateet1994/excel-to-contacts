@@ -2,14 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools" tools:context=".MainActivity">
 
-    <item android:id="@+id/refresh_list" android:title="@string/refresh"
-        android:orderInCategory="103" app:showAsAction="never" />
-
-    <item android:id="@+id/create_contact" android:title="@string/create"
-         app:showAsAction="ifRoom"
-        android:icon="@drawable/ic_add_contact_holo_light"/>
-
-    <item android:id="@+id/read_file" android:title="read"
+    <item android:id="@+id/core" android:title="Options"
         app:showAsAction="always"
         android:icon="@drawable/toolbar_new"/>
 
@@ -19,28 +12,26 @@
         app:showAsAction="always|collapseActionView"
         app:actionViewClass="android.support.v7.widget.SearchView" />
 
-    <item android:id="@+id/help" android:title="Help"
-        android:orderInCategory="104" app:showAsAction="never" />
+    <item android:id="@+id/create_contact" android:title="@string/create"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/ic_add_contact_holo_light"/>
 
-    <item android:id="@+id/about" android:title="About"
-        android:orderInCategory="105" app:showAsAction="never" />
-
-    <item android:id="@+id/download" android:title="Download"
-        android:orderInCategory="101" app:showAsAction="never" />
-
-    <item android:id="@+id/write" android:title="Write"
-        android:orderInCategory="102" app:showAsAction="never" />
-
-    <item android:id="@+id/action_settings" android:title="Settings"
-        android:orderInCategory="106" app:showAsAction="ifRoom"
+    <item android:id="@+id/action_settings" android:title="Settings" app:showAsAction="ifRoom"
         android:icon="@drawable/ic_menu_settings_holo_light"/>
 
-    <item android:id="@+id/writePB" android:title="Write2"
-        android:orderInCategory="107" app:showAsAction="never" />
-    <item android:id="@+id/readPB" android:title="Read2"
-        android:orderInCategory="108" app:showAsAction="never" />
-    <item android:id="@+id/deleteall" android:title="Delete All"
-        android:orderInCategory="109" app:showAsAction="never" />
+    <item android:id="@+id/download" android:title="Download"
+        android:orderInCategory="100" app:showAsAction="never" />
 
+    <item android:id="@+id/refresh_list" android:title="@string/refresh"
+        android:orderInCategory="101" app:showAsAction="never" />
+
+    <item android:id="@+id/deleteall" android:title="Delete All"
+        android:orderInCategory="102" app:showAsAction="never" />
+
+    <item android:id="@+id/help" android:title="Help"
+        android:orderInCategory="103" app:showAsAction="never" />
+
+    <item android:id="@+id/about" android:title="About"
+        android:orderInCategory="104" app:showAsAction="never" />
 
 </menu>

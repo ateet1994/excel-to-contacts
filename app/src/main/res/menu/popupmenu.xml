@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item android:id="@+id/read_file" android:title="Read From Excel"
+        android:orderInCategory="100" app:showAsAction="never" />
+
+    <item android:id="@+id/readPB" android:title="Read From Phone Book"
+        android:orderInCategory="101" app:showAsAction="never" />
+
+    <item android:id="@+id/write" android:title="Write To Excel"
+        android:orderInCategory="102" app:showAsAction="never" />
+
+    <item android:id="@+id/writePB" android:title="Write To Phone Book"
+        android:orderInCategory="103" app:showAsAction="never" />
+
+</menu>
