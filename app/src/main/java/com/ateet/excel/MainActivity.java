@@ -175,7 +175,7 @@ public class MainActivity extends ActionBarActivity {
                 new ReadPB().execute();
                 return true;
             case R.id.writePB:
-                writeContactsToPhoneBook();
+                new WritePB().execute();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -529,7 +529,7 @@ public class MainActivity extends ActionBarActivity {
 
         if (cur.getCount() > 0) {
             while (cur.moveToNext()) {
-                String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+                String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID));
                 String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                 String[] insert = new String[11];
                 int count = 0;
@@ -646,6 +646,15 @@ public class MainActivity extends ActionBarActivity {
                 Toast.makeText(getApplicationContext(), "Exception: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
+        }
+    }
+    class WritePB extends AsyncTask<Void, Void, Void>
+    {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            writeContactsToPhoneBook();
+            return null;
         }
     }
 }
