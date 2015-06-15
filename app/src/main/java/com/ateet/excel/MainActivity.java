@@ -14,7 +14,6 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
-import android.view.LayoutInflater;
 import android.support.v7.widget.SearchView;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -33,7 +32,6 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
 
     private static ContactAdapter mContactAdapter;
     static Cursor mCursor;
-    private static final String TAG = MainActivity.class.getSimpleName();
     private static final int CREATE_CONTACT = 1;
     private static final int EDIT_CONTACT = 2;
     private static final int REQUEST_PICK_FILE = 3;

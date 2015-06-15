@@ -46,7 +46,7 @@ public class FilePickerActivity extends ListActivity {
         mDirectory = new File(DEFAULT_INITIAL_DIRECTORY);
 
         // Initialize the ArrayList
-        mFiles = new ArrayList<File>();
+        mFiles = new ArrayList<>();
 
         // Set the ListAdapter
         mAdapter = new FilePickerListAdapter(this, mFiles);
@@ -65,13 +65,14 @@ public class FilePickerActivity extends ListActivity {
         if(getIntent().hasExtra(EXTRA_ACCEPTED_FILE_EXTENSIONS)) {
             ArrayList<String> collection = getIntent().getStringArrayListExtra(EXTRA_ACCEPTED_FILE_EXTENSIONS);
             acceptedFileExtensions = collection.toArray(new String[collection.size()]);
-
             android.app.ActionBar actionBar;
             actionBar = getActionBar();
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setDisplayShowHomeEnabled(false);
-            actionBar.setDisplayShowTitleEnabled(true);
-            actionBar.setDisplayUseLogoEnabled(false);
+            if (actionBar != null) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setDisplayShowHomeEnabled(false);
+                actionBar.setDisplayShowTitleEnabled(true);
+                actionBar.setDisplayUseLogoEnabled(false);
+            }
         }
     }
 
@@ -217,8 +218,8 @@ public class FilePickerActivity extends ListActivity {
                 return true;
             }
             if(mExtensions != null && mExtensions.length > 0) {
-                for(int i = 0; i < mExtensions.length; i++) {
-                    if(filename.endsWith(mExtensions[i])) {
+                for (String mExtension : mExtensions) {
+                    if (filename.endsWith(mExtension)) {
                         // The filename ends with the extension
                         return true;
                     }

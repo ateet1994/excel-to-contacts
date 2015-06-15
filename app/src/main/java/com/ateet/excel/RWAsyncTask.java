@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.ContactsContract;
@@ -48,6 +47,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
     private boolean update;
     private boolean success;
     private String message;
+    private String directory = Environment.getExternalStorageDirectory().getPath() + "/ExcelToContacts/";
 
 
     public RWAsyncTask(Context context) {
@@ -156,9 +156,12 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
 
             res.moveToNext();
         }
-        File file = new File(mContext.getExternalFilesDir(null), "export.xls");
+        File file = new File(directory, "export.xls");
+        File dir = new File(directory);
         FileOutputStream os = null;
         try {
+            if (!dir.exists())
+                dir.mkdir();
             os = new FileOutputStream(file);
             wb.write(os);
         } catch (Exception e) {
@@ -173,7 +176,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
             }
         }
         success = true;
-        message = mContext.getExternalFilesDir(null) + "/export.xls";
+        message = directory + "export.xls";
     }
 
     public boolean isExternalStorageReadOnly() {
@@ -327,7 +330,10 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
             if (!connection.getContentType().contains("excel"))
                 throw new Exception("Input file should be a .xls file");
             filename = urlString.substring(urlString.lastIndexOf('/'));
-            location = mContext.getExternalFilesDir(null) + filename;
+            location = directory + filename;
+            File dir = new File(directory);
+            if (!dir.exists())
+                dir.mkdir();
             // input stream to read file - with 8k buffer
             InputStream input = new BufferedInputStream(url.openStream(), 8192);
 
@@ -364,7 +370,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
             case DOWNLOAD:
                 params[1] = downloadXls(params[1]);
                 update = true;
-                if (params[1] == null)
+                if (!success)
                     break;
 
             case READ_XLS:
