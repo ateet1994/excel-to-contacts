@@ -115,8 +115,6 @@ public class FilePickerActivity extends ListActivity {
         if(!mDirectory.getParentFile().equals(mParentToStorage)) {
             // Go to parent directory
             mDirectory = mDirectory.getParentFile();
-//            Log.d("ateet", mDirectory.getPath());
-//            Log.d("ateet", Environment.getExternalStorageDirectory().getParent());
             refreshFilesList();
             return;
         }

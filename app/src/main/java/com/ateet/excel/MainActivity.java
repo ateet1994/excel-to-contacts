@@ -111,7 +111,6 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         // Handle item selection
         switch (item.getItemId()) {
             case R.id.create_contact:
-                //Log.d("ateet", "create");
                 Intent intent = new Intent(MainActivity.this, DisplayContact.class);
                 startActivityForResult(intent, CREATE_CONTACT);
                 return true;
@@ -130,11 +129,13 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                 return true;
             case R.id.download:
                 SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-                String url = sharedPref.getString(getString(R.string.pref_download_key), "No URL");
+                String url = sharedPref.getString(getString(R.string.pref_download_key), "Input a URL(with protocol) in settings");
                 if (url == null || url.length() == 0)
                     Toast.makeText(getApplicationContext(), "Input a URL(with protocol) in settings", Toast.LENGTH_LONG).show();
-                else
+                else {
+                    Toast.makeText(getApplicationContext(), "Downloading... Please Wait", Toast.LENGTH_SHORT).show();
                     new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.DOWNLOAD), url);
+                }
                 return true;
             case R.id.action_settings:
                 startActivity(new Intent(this, SettingsActivity.class));
@@ -279,7 +280,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                     if (data.hasExtra(FilePickerActivity.EXTRA_FILE_PATH)) {
                         String excelFile;
                         excelFile = new File(data.getStringExtra(FilePickerActivity.EXTRA_FILE_PATH)).getPath();
-                        Toast.makeText(getApplicationContext(), excelFile, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Reading... Please Wait", Toast.LENGTH_SHORT).show();
                         new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_XLS), excelFile);
                         updateList();
                     }
@@ -313,12 +314,15 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                 getFile();
                 return true;
             case R.id.write:
+                Toast.makeText(getApplicationContext(), "Writing... Please Wait", Toast.LENGTH_SHORT).show();
                 new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.WRITE_XLS));
                 return true;
             case R.id.readPB:
+                Toast.makeText(getApplicationContext(), "Reading... Please Wait", Toast.LENGTH_SHORT).show();
                 new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_PHONEBOOK));
                 return true;
             case R.id.writePB:
+                Toast.makeText(getApplicationContext(), "Writing... Please Wait", Toast.LENGTH_SHORT).show();
                 new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.WRITE_PHONEBOOK));
                 return true;
             default:

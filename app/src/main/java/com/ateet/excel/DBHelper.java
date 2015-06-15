@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -90,8 +89,6 @@ public class DBHelper extends SQLiteOpenHelper {
                         COLUMN_EMAIL4 + " text," +
                         COLUMN_EMAIL5 + " text" +
                         ");";
-        Log.d("", SQL_CREATE_CONTACTS_TABLE);
-
         db.execSQL(SQL_CREATE_CONTACTS_TABLE);
     }
 
@@ -123,7 +120,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         } catch (Exception e) {
             //Toast.makeText(get, e.printStackTrace(), Toast.LENGTH_LONG).show();
-            e.printStackTrace();
+//            e.printStackTrace();
         }
         db.close();
         return true;

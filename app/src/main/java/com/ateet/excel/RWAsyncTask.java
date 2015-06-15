@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.provider.ContactsContract;
-import android.util.Log;
 import android.widget.Toast;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -58,7 +57,8 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
     private void readXls(String filename) {
 
         if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
-            Log.e("ateet", "Storage not available or read only");
+            success = false;
+            message = "Storage not available or read only";
             return;
         }
         Vector<ContentValues> cVVector = new Vector<>();
@@ -109,7 +109,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
             success = false;
             message = e.getMessage();
             //Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
@@ -127,7 +127,8 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
 
     private void writeXls() {
         if (!isExternalStorageAvailable() || isExternalStorageReadOnly()) {
-            Log.e("ateet", "Storage not available or read only");
+            success = false;
+            message = "Storage not available or read only";
             return;
         }
 
@@ -172,7 +173,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 if (null != os)
                     os.close();
             } catch (Exception ex) {
-                ex.printStackTrace();
+//                ex.printStackTrace();
             }
         }
         success = true;
@@ -189,6 +190,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
         return Environment.MEDIA_MOUNTED.equals(extStorageState);
     }
 
+//    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void readContactsFromPhoneBook() {
         ContentResolver cr = mContext.getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
@@ -265,7 +267,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
         ArrayList<ContentProviderOperation> ops = new ArrayList<>();
         Cursor cur = MainActivity.mCursor;
         cur.moveToFirst();
-        for (int i = 0; i < cur.getCount(); i++) {
+        while(!cur.isAfterLast()) {
 
             ops.add(ContentProviderOperation.newInsert(
                     ContactsContract.RawContacts.CONTENT_URI)
@@ -310,6 +312,8 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
 
             try {
                 mContext.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
+                ops.clear();
+                cur.moveToNext();
             } catch (Exception e) {
                 success = false;
                 message = e.getMessage();
