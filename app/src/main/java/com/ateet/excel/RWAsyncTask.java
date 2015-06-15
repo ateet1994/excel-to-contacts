@@ -139,24 +139,23 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
         Sheet sheet1;
         sheet1 = wb.createSheet("Sheet1");
         // Generate column headings
-        SQLiteDatabase dbRead = db.getReadableDatabase();
-        Cursor res = dbRead.rawQuery("select * from " + DBHelper.TABLE_NAME, null);
+        Cursor res = MainActivity.mCursor;
         res.moveToFirst();
-        String[] cols = DBHelper.PROJECTIONS;
+        row = sheet1.createRow(countRow++);
+        for (int col = 1; col < 12; col++) {
+            c = row.createCell(col - 1);
+            c.setCellValue(DBHelper.PROJECTIONS[col]);
+        }
         while (!res.isAfterLast()) {
             row = sheet1.createRow(countRow++);
 
             for (int countCol = 1; countCol < 12; countCol++) {
                 c = row.createCell(countCol - 1);
-                if (countRow == 1)
-                    c.setCellValue(cols[countCol]);
-                else
-                    c.setCellValue(res.getString(countCol));
+                c.setCellValue(res.getString(countCol));
             }
 
             res.moveToNext();
         }
-        res.close();
         File file = new File(mContext.getExternalFilesDir(null), "export.xls");
         FileOutputStream os = null;
         try {
