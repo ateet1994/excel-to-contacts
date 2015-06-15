@@ -121,7 +121,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 success = true;
                 message = "Read Successful";
             }
-            else success = false;
+            else { success = false; message = "failed";}
         }
     }
 
@@ -399,5 +399,6 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
             }
         }
         Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+        db.close();
     }
 }

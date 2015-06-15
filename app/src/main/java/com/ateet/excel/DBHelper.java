@@ -127,6 +127,7 @@ public class DBHelper extends SQLiteOpenHelper {
             //Toast.makeText(get, e.printStackTrace(), Toast.LENGTH_LONG).show();
             e.printStackTrace();
         }
+        db.close();
         return true;
     }
 
@@ -146,6 +147,7 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(COLUMN_EMAIL4, insert[9]);
         contentValues.put(COLUMN_EMAIL5, insert[10]);
         db.update(TABLE_NAME, contentValues, COLUMN_ID + " = ? ", new String[]{Long.toString(id)});
+        db.close();
         return true;
     }
     public Cursor getData(long id){
@@ -165,12 +167,13 @@ public class DBHelper extends SQLiteOpenHelper {
         String sortOrder = COLUMN_NAME + " COLLATE NOCASE";
         Cursor res =  db.query(TABLE_NAME, PROJECTIONS, null, null, null, null, sortOrder);
         res.moveToFirst();
+        db.close();
         return res;
     }
     public void deleteAll() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_NAME, null, null);
-
+        db.close();
     }
 
     public void bulkInsert(ContentValues[] values) {
@@ -187,6 +190,7 @@ public class DBHelper extends SQLiteOpenHelper {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+            db.close();
         }
     }
 

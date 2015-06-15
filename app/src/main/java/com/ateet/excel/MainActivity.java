@@ -114,14 +114,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                 updateList();
                 return true;
             case R.id.help:
-                AlertDialog.Builder alertadd = new AlertDialog.Builder(
-                        MainActivity.this);
-                LayoutInflater factory = LayoutInflater.from(MainActivity.this);
-                final View view = factory.inflate(R.layout.help, null);
-                alertadd.setView(view);
-                alertadd.setMessage(this.getString(R.string.help));
-                alertadd.setTitle("Help");
-                alertadd.show();
+                startActivity(new Intent(this, HelpActivity.class));
                 return true;
             case R.id.about:
                 AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -167,30 +160,6 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                         .show();
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // Check which request we're responding to
-        super.onActivityResult(requestCode, resultCode, data);
-        // Make sure the request was successful
-        if (resultCode == RESULT_OK) {
-            switch (requestCode) {
-                case CREATE_CONTACT:
-                case EDIT_CONTACT:
-                    updateList();
-                    break;
-                case REQUEST_PICK_FILE:
-                    if (data.hasExtra(FilePickerActivity.EXTRA_FILE_PATH)) {
-                        String excelFile;
-                        excelFile = new File(data.getStringExtra(FilePickerActivity.EXTRA_FILE_PATH)).getPath();
-                        Toast.makeText(getApplicationContext(), excelFile, Toast.LENGTH_SHORT).show();
-                        new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_XLS), excelFile);
-                        updateList();
-                    }
-                    break;
-            }
         }
     }
 
@@ -289,6 +258,31 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         AlertDialog alert = builder.create();
         alert.show();
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Check which request we're responding to
+        super.onActivityResult(requestCode, resultCode, data);
+        // Make sure the request was successful
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case CREATE_CONTACT:
+                case EDIT_CONTACT:
+                    updateList();
+                    break;
+                case REQUEST_PICK_FILE:
+                    if (data.hasExtra(FilePickerActivity.EXTRA_FILE_PATH)) {
+                        String excelFile;
+                        excelFile = new File(data.getStringExtra(FilePickerActivity.EXTRA_FILE_PATH)).getPath();
+                        Toast.makeText(getApplicationContext(), excelFile, Toast.LENGTH_SHORT).show();
+                        new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_XLS), excelFile);
+                        updateList();
+                    }
+                    break;
+            }
+        }
+    }
+
     private void getFile() {
         Intent intent = new Intent(MainActivity.this, FilePickerActivity.class);
 

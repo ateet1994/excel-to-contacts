@@ -1,0 +1,63 @@
+<html>
+    <body>
+        <p><a href="#createExcel">1.Creating Excel File</a></p>
+        <p><a href="#readExcel">2.Read From Excel</a></p>
+        <p><a href="#readPB">3.Read From Phone Book</a></p>
+        <p><a href="#writeExcel">4.Write To Excel</a></p>
+        <p><a href="#writePB">5.Write To Phone Book</a></p>
+        <p><a href="#backupPB">6.Backup Contacts From Phone Book</a></p>
+        <p><a href="#restorePB">7.Restore Contacts From Phone Book</a></p>
+        <p><a href="#download">8.Download from URL</a></p>
+        <p><a href="#search">9.Search</a></p>
+        <br>
+        <h3 id="createExcel">1.Creating Excel File</h3>
+        <p>
+            The application requires that the data be entered in the format shown in the image below. <br>
+
+            <b>The column format is as follows: <br>
+            Name, Phone 1, Phone 2, Phone 3, Phone 4, Phone 5, Email 1, Email 2, Email 3, Email 4, Email 5.<br>
+            The above order must be followed, otherwise the application would not be able store properly.</b>
+        </p>
+        <img src="file:///android_asset/help1.png" >
+        <p>Zoom in to see clearly</p>
+        <img src="file:///android_asset/help2.png" >
+        <p>The headings can be changed, but order of entry should be followed.</p>
+        <p>
+            The <b>Name and Phone 1</b> fields should not be empty.
+            <b>Phone 2 to Phone 5</b> and <b>Email 1 to Email 5</b> fields can be empty.
+        </p>
+        <img src="file:///android_asset/help3.png" >
+        <h3 id="readExcel">2.Read From Excel</h3>
+        <p>Click on '+' button and then click on Read From Excel, then choose an excel file.
+            The file will be read and data will be displayed properly only if the order mentioned above is followed.
+        </p>
+        <img src="file:///android_asset/help4.png" >
+        <h3 id="readPB">3.Read From Phone Book</h3>
+        <p>
+            Click on '+' button and then click on Read From Phone Book.
+            The contacts read are only from default google account.
+        </p>
+        <h3 id="writeExcel">4.Write To Excel</h3>
+        <p>
+            Click on '+' button and then click on Write To Excel.
+            The file will be stored in sdcard "Android/com.ateet.excel/files/export.xls"
+        </p>
+        <h3 id="writePB">5.Write To Phone Book</h3>
+        <p>Click on '+' button and then click on Write To Phone Book.</p>
+        <h3 id="backupPB">6.Backup Contacts From Phone Book</h3>
+        <p>To backup, first read from phone book, then edit and delete if required, then write to excel.</p>
+        <h3 id="restorePB">7.Restore Contacts From Phone Book</h3>
+        <p>To restore, first read from excel, then edit and delete if required, the write to phone book</p>
+        <h3 id="download">8.Download from URL</h3>
+        <p>
+            An excel file can be downloaded from a server. To enable this a URL must be entered in settings<br>
+            It should be in following format:<br>
+            <b>&lt;protocol&gt;://&lt;web address&gt;/&lt;filename&gt;.xls</b><br>
+            Example:<br>
+            "http://www.example.com/download.xls"<br>
+            The file will be stored in sdcard "Android/com.ateet.excel/files/download.xls"
+        </p>
+        <h3 id="search">9.Search</h3>
+        <p>Click on search button, enter a query, then click enter on keyboard.</p>
+    </body>
+</html>
