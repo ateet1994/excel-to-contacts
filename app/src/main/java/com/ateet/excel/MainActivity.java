@@ -22,6 +22,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -37,6 +38,9 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
     private static final int REQUEST_PICK_FILE = 3;
     private static DBHelper db;
 
+    private TextView empty;
+    private String emptyText = "Click '+' button\n Checkout help page";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,6 +50,8 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         if (mCursor.moveToFirst())
             mContactAdapter = new ContactAdapter(this, mCursor, 0);
         else mContactAdapter = new ContactAdapter(getApplicationContext(), null, 0);
+        empty = (TextView) findViewById(R.id.empty);
+        empty.setText(emptyText);
         ListView list = (ListView) findViewById(R.id.listView1);
         list.setEmptyView(findViewById(R.id.empty));
         list.setAdapter(mContactAdapter);
@@ -82,6 +88,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
             public void onFocusChange(View view, boolean queryTextFocused) {
                 if (!queryTextFocused) {
                     updateList();
+                    empty.setText(emptyText);
                 }
             }
         });
@@ -354,7 +361,10 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         // if you want to get everything starting with that key value
         if (mCursor.moveToFirst()) {
             mContactAdapter.changeCursor(mCursor);
-        } else mContactAdapter.changeCursor(null);
+        } else {
+            mContactAdapter.changeCursor(null);
+            empty.setText("No Results Found");
+        }
     }
 
 
