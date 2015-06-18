@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
@@ -40,6 +41,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
 
     private TextView empty;
     private String emptyText = "Click '+' button\n Checkout help page";
+    static AsyncTask task;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -281,7 +283,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                         String excelFile;
                         excelFile = new File(data.getStringExtra(FilePickerActivity.EXTRA_FILE_PATH)).getPath();
                         Toast.makeText(getApplicationContext(), "Reading... Please Wait", Toast.LENGTH_SHORT).show();
-                        new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_XLS), excelFile);
+                        task = new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_XLS), excelFile);
                         updateList();
                     }
                     break;
@@ -315,15 +317,15 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                 return true;
             case R.id.write:
                 Toast.makeText(getApplicationContext(), "Writing... Please Wait", Toast.LENGTH_SHORT).show();
-                new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.WRITE_XLS));
+                task = new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.WRITE_XLS));
                 return true;
             case R.id.readPB:
                 Toast.makeText(getApplicationContext(), "Reading... Please Wait", Toast.LENGTH_SHORT).show();
-                new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_PHONEBOOK));
+                task = new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_PHONEBOOK));
                 return true;
             case R.id.writePB:
                 Toast.makeText(getApplicationContext(), "Writing... Please Wait", Toast.LENGTH_SHORT).show();
-                new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.WRITE_PHONEBOOK));
+                task = new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.WRITE_PHONEBOOK));
                 return true;
             default:
                 return false;
@@ -352,6 +354,10 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (task != null) {
+            Toast.makeText(getApplicationContext(), "Cancelling...", Toast.LENGTH_SHORT).show();
+            task.cancel(true);
+        }
         mCursor.close();
         db.close();
     }

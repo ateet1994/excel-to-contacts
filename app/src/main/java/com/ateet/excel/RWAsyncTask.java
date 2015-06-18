@@ -85,6 +85,10 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
 
             if (rowIter.hasNext()) rowIter.next();
             while (rowIter.hasNext()) {
+                if (isCancelled()) {
+                    success = false;
+                    message = "Cancelled... Please restart the process";
+                }
                 HSSFRow myRow = (HSSFRow) rowIter.next();
                 Iterator cellIter = myRow.cellIterator();
                 String[] str = new String[11];
@@ -148,6 +152,10 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
             c.setCellValue(DBHelper.PROJECTIONS[col]);
         }
         while (!res.isAfterLast()) {
+            if (isCancelled()) {
+                success = false;
+                message = "Cancelled... Please restart the process";
+            }
             row = sheet1.createRow(countRow++);
 
             for (int countCol = 1; countCol < 12; countCol++) {
@@ -199,6 +207,10 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
             if (cur.getCount() > 0) {
                 Vector<ContentValues> cVVector = new Vector<>();
                 while (cur.moveToNext()) {
+                    if (isCancelled()) {
+                        success = false;
+                        message = "Cancelled... Please restart the process";
+                    }
                     String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID));
                     String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                     String[] insert = new String[11];
@@ -269,6 +281,10 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
         cur.moveToFirst();
         while(!cur.isAfterLast()) {
 
+            if (isCancelled()) {
+                success = false;
+                message = "Cancelled... Please restart the process";
+            }
             ops.add(ContentProviderOperation.newInsert(
                     ContactsContract.RawContacts.CONTENT_URI)
                     .withValue(ContactsContract.RawContacts.ACCOUNT_TYPE, null)
@@ -407,6 +423,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 update = false;
             }
         }
+        MainActivity.task = null;
         Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
         db.close();
     }
