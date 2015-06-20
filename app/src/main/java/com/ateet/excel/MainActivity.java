@@ -311,24 +311,30 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.read_file:
-                getFile();
-                return true;
-            case R.id.write:
-                Toast.makeText(getApplicationContext(), "Writing... Please Wait", Toast.LENGTH_SHORT).show();
-                task = new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.WRITE_XLS));
-                return true;
-            case R.id.readPB:
-                Toast.makeText(getApplicationContext(), "Reading... Please Wait", Toast.LENGTH_SHORT).show();
-                task = new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_PHONEBOOK));
-                return true;
-            case R.id.writePB:
-                Toast.makeText(getApplicationContext(), "Writing... Please Wait", Toast.LENGTH_SHORT).show();
-                task = new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.WRITE_PHONEBOOK));
-                return true;
-            default:
-                return false;
+        if (task != null) {
+            Toast.makeText(getApplicationContext(), "Already running, Please Wait", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        else {
+            switch (item.getItemId()) {
+                case R.id.read_file:
+                    getFile();
+                    return true;
+                case R.id.write:
+                    Toast.makeText(getApplicationContext(), "Writing... Please Wait", Toast.LENGTH_SHORT).show();
+                    task = new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.WRITE_XLS));
+                    return true;
+                case R.id.readPB:
+                    Toast.makeText(getApplicationContext(), "Reading... Please Wait", Toast.LENGTH_SHORT).show();
+                    task = new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.READ_PHONEBOOK));
+                    return true;
+                case R.id.writePB:
+                    Toast.makeText(getApplicationContext(), "Writing... Please Wait", Toast.LENGTH_SHORT).show();
+                    task = new RWAsyncTask(getApplicationContext()).execute(String.valueOf(RWAsyncTask.WRITE_PHONEBOOK));
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 

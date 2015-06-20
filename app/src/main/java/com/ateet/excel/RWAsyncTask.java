@@ -88,6 +88,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 if (isCancelled()) {
                     success = false;
                     message = "Cancelled... Please restart the process";
+                    MainActivity.task = null;
                 }
                 HSSFRow myRow = (HSSFRow) rowIter.next();
                 Iterator cellIter = myRow.cellIterator();
@@ -155,6 +156,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
             if (isCancelled()) {
                 success = false;
                 message = "Cancelled... Please restart the process";
+                MainActivity.task = null;
             }
             row = sheet1.createRow(countRow++);
 
@@ -205,11 +207,12 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 null, null, null, null);
         try {
             if (cur.getCount() > 0) {
-                Vector<ContentValues> cVVector = new Vector<>();
+                Vector<ContentValues> cVVector = new Vector<>(11);
                 while (cur.moveToNext()) {
                     if (isCancelled()) {
                         success = false;
                         message = "Cancelled... Please restart the process";
+                        MainActivity.task = null;
                     }
                     String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID));
                     String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
@@ -231,7 +234,8 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                             String phone = pCur.getString(
                                     pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 //                        System.out.println("phone" + phone);
-                            insert[count++] = phone;
+                            if (count >= 1 && count <= 5)
+                                insert[count++] = phone;
                         }
                         pCur.close();
 
@@ -249,7 +253,8 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                             String email = emailCur.getString(
                                     emailCur.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
 //                        System.out.println("Email " + email);
-                            insert[count++] = email;
+                            if (count >= 6 && count <= 10)
+                                insert[count++] = email;
                         }
                         emailCur.close();
 //                    db.insertContact(insert);
@@ -267,12 +272,12 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 }
             }
             cur.close();
+            success = true;
+            message = "Read Successful";
         } catch (Exception e) {
             success = false;
             message = e.getMessage();
         }
-        success = true;
-        message = "Read Successful";
     }
 
     public void writeContactsToPhoneBook() {
@@ -284,6 +289,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
             if (isCancelled()) {
                 success = false;
                 message = "Cancelled... Please restart the process";
+                MainActivity.task = null;
             }
             ops.add(ContentProviderOperation.newInsert(
                     ContactsContract.RawContacts.CONTENT_URI)
@@ -330,20 +336,25 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 mContext.getContentResolver().applyBatch(ContactsContract.AUTHORITY, ops);
                 ops.clear();
                 cur.moveToNext();
+                success = true;
+                message = "Write Successful";
             } catch (Exception e) {
                 success = false;
                 message = e.getMessage();
             }
 
         }
-        success = true;
-        message = "Write Successful";
     }
 
     private String downloadXls(String urlString) {
         int count;
         String filename, location;
         try {
+            if (isCancelled()) {
+                success = false;
+                message = "Cancelled... Please restart the process";
+                MainActivity.task = null;
+            }
             URL url = new URL(urlString);
             URLConnection connection = url.openConnection();
             connection.connect();
