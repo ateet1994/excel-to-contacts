@@ -3,6 +3,7 @@ package com.ateet.excel;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -116,11 +117,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
         try {
             db.insertWithOnConflict(TABLE_NAME, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
-        //} catch (SQLiteConstraintException e) {
+        } catch (SQLiteConstraintException e) {
 
-        } catch (Exception e) {
-            //Toast.makeText(get, e.printStackTrace(), Toast.LENGTH_LONG).show();
-//            e.printStackTrace();
         }
         db.close();
         return true;

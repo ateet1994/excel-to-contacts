@@ -89,6 +89,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                     success = false;
                     message = "Cancelled... Please restart the process";
                     MainActivity.task = null;
+                    return;
                 }
                 HSSFRow myRow = (HSSFRow) rowIter.next();
                 Iterator cellIter = myRow.cellIterator();
@@ -113,12 +114,6 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                     cVVector.add(contactValues);
                 }
             }
-        } catch (Exception e) {
-//            e.printStackTrace();
-            success = false;
-            message = e.getMessage();
-            //Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-        } finally {
             if (cVVector.size() > 0) {
                 ContentValues[] cvArray = new ContentValues[cVVector.size()];
                 cVVector.toArray(cvArray);
@@ -126,7 +121,12 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 success = true;
                 message = "Read Successful";
             }
-            else { success = false; message = "failed";}
+            else { success = false; message = "Failed: Vector size is zero";}
+        } catch (Exception e) {
+//            e.printStackTrace();
+            success = false;
+            message = "Failed: " + e.getMessage();
+            //Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -157,6 +157,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 success = false;
                 message = "Cancelled... Please restart the process";
                 MainActivity.task = null;
+                return;
             }
             row = sheet1.createRow(countRow++);
 
@@ -175,19 +176,25 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 dir.mkdir();
             os = new FileOutputStream(file);
             wb.write(os);
+            success = true;
+            message = directory + "export.xls";
         } catch (Exception e) {
             success = false;
-            message = e.getMessage();
+            message = "Failed: " + e.getMessage();
         } finally {
             try {
                 if (null != os)
                     os.close();
             } catch (Exception ex) {
 //                ex.printStackTrace();
+                if (success) {
+                    success = false;
+                    message = "Failed: " + ex.getMessage();
+                }
+                else
+                    message += "\nFailed: " + ex.getMessage();
             }
         }
-        success = true;
-        message = directory + "export.xls";
     }
 
     public boolean isExternalStorageReadOnly() {
@@ -213,6 +220,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                         success = false;
                         message = "Cancelled... Please restart the process";
                         MainActivity.task = null;
+                        return;
                     }
                     String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.NAME_RAW_CONTACT_ID));
                     String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
@@ -276,7 +284,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
             message = "Read Successful";
         } catch (Exception e) {
             success = false;
-            message = e.getMessage();
+            message = "Failed: " + e.getMessage();
         }
     }
 
@@ -290,6 +298,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 success = false;
                 message = "Cancelled... Please restart the process";
                 MainActivity.task = null;
+                return;
             }
             ops.add(ContentProviderOperation.newInsert(
                     ContactsContract.RawContacts.CONTENT_URI)
@@ -340,7 +349,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 message = "Write Successful";
             } catch (Exception e) {
                 success = false;
-                message = e.getMessage();
+                message = "Failed: " + e.getMessage();
             }
 
         }
@@ -354,6 +363,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
                 success = false;
                 message = "Cancelled... Please restart the process";
                 MainActivity.task = null;
+                return null;
             }
             URL url = new URL(urlString);
             URLConnection connection = url.openConnection();
@@ -389,7 +399,7 @@ public class RWAsyncTask extends AsyncTask<String, Void, Void>{
             return location;
 
         } catch (Exception e) {
-            message = e.getMessage();
+            message = "Failed: " + e.getMessage();
             success = false;
             return null;
         }

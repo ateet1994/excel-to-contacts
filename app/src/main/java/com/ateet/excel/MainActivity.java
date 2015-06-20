@@ -41,6 +41,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
 
     private TextView empty;
     private String emptyText = "Click '+' button\n Checkout help page";
+    private static TextView count;
     static AsyncTask task;
 
     @Override
@@ -57,7 +58,8 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         ListView list = (ListView) findViewById(R.id.listView1);
         list.setEmptyView(findViewById(R.id.empty));
         list.setAdapter(mContactAdapter);
-
+        count = (TextView) findViewById(R.id.count);
+        count.setText("Total Count: " + mCursor.getCount());
 
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -341,6 +343,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
     public static void updateList() {
         mCursor = db.getAllContacts();
         mContactAdapter.changeCursor(mCursor);
+        count.setText("Total Count: " + mCursor.getCount());
     }
 
     @Override
