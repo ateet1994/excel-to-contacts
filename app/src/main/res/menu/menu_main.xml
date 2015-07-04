@@ -22,8 +22,6 @@
     <item android:id="@+id/download" android:title="Download"
         android:orderInCategory="100" app:showAsAction="never" />
 
-    <item android:id="@+id/refresh_list" android:title="@string/refresh"
-        android:orderInCategory="101" app:showAsAction="never" />
 
     <item android:id="@+id/deleteall" android:title="Delete All"
         android:orderInCategory="102" app:showAsAction="never" />
@@ -33,5 +31,6 @@
 
     <item android:id="@+id/about" android:title="About"
         android:orderInCategory="104" app:showAsAction="never" />
+
 
 </menu>

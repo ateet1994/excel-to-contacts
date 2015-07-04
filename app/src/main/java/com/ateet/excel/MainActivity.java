@@ -16,11 +16,14 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.SearchView;
+import android.util.SparseBooleanArray;
+import android.view.ActionMode;
 import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -38,6 +41,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
     private static final int EDIT_CONTACT = 2;
     private static final int REQUEST_PICK_FILE = 3;
     private static DBHelper db;
+    private ListView list;
 
     private TextView empty;
     private String emptyText = "Click '+' button\n Checkout help page";
@@ -55,7 +59,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         else mContactAdapter = new ContactAdapter(getApplicationContext(), null, 0);
         empty = (TextView) findViewById(R.id.empty);
         empty.setText(emptyText);
-        ListView list = (ListView) findViewById(R.id.listView1);
+        list = (ListView) findViewById(R.id.listView1);
         list.setEmptyView(findViewById(R.id.empty));
         list.setAdapter(mContactAdapter);
         count = (TextView) findViewById(R.id.count);
@@ -70,6 +74,64 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
 
         handleIntent(getIntent());
         registerForContextMenu(list);
+
+        list.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE_MODAL);
+        list.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener() {
+
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.delete:
+                        // Calls getSelectedIds method from ListViewAdapter Class
+                        SparseBooleanArray selected = mContactAdapter
+                                .getSelectedIds();
+                        // Captures all selected ids with a loop
+                        for (int i = (selected.size() - 1); i >= 0; i--) {
+                            if (selected.valueAt(i)) {
+                                mCursor.moveToPosition(selected.keyAt(i));
+                                db.deleteContact(mCursor.getLong(DBHelper.COL_ID));
+                            }
+                        }
+                        // Close CAB
+                        mode.finish();
+                        updateList();
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                mode.getMenuInflater().inflate(R.menu.menu_delete, menu);
+                return true;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                // TODO Auto-generated method stub
+                mContactAdapter.removeSelection();
+//                list.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                // TODO Auto-generated method stub
+                return false;
+            }
+
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode,
+                                                  int position, long id, boolean checked) {
+                // Capture total checked items
+                final int checkedCount = list.getCheckedItemCount();
+                // Set the CAB title according to total checked items
+                mode.setTitle(checkedCount + " Selected");
+                // Calls toggleSelection method from ListViewAdapter Class
+                mContactAdapter.toggleSelection(position);
+            }
+        });
     }
 
     @Override
@@ -118,9 +180,6 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                 Intent intent = new Intent(MainActivity.this, DisplayContact.class);
                 startActivityForResult(intent, CREATE_CONTACT);
                 return true;
-            case R.id.refresh_list:
-                updateList();
-                return true;
             case R.id.help:
                 startActivity(new Intent(this, HelpActivity.class));
                 return true;
@@ -168,6 +227,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
                             }
                         })
                         .show();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -375,7 +435,7 @@ public class MainActivity extends ActionBarActivity implements PopupMenu.OnMenuI
         String selectQuery = "SELECT  * FROM " + DBHelper.TABLE_NAME + " WHERE " + DBHelper.COLUMN_NAME + " LIKE ?";
 
         SQLiteDatabase dbRead = db.getReadableDatabase();
-        mCursor = dbRead.rawQuery(selectQuery, new String[]{key + "%"});
+        mCursor = dbRead.rawQuery(selectQuery, new String[]{"%" + key + "%"});
         // db.rawQuery("SELECT * FROM "+table+" WHERE KEY_KEY LIKE ?", new String[] {key+"%"});
         // if you want to get everything starting with that key value
         if (mCursor.moveToFirst()) {

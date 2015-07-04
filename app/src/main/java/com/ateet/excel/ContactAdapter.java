@@ -4,6 +4,7 @@ package com.ateet.excel;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,10 @@ public class ContactAdapter extends CursorAdapter{
 
     public ContactAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
+        mSelectedItemsIds = new SparseBooleanArray();
     }
+
+    private SparseBooleanArray mSelectedItemsIds;
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
@@ -43,4 +47,25 @@ public class ContactAdapter extends CursorAdapter{
             phoneView = (TextView) view.findViewById(R.id.list_item_phone_textview);
         }
     }
+
+    public void toggleSelection(int position) {
+        selectView(position, !mSelectedItemsIds.get(position));
+    }
+
+    public void removeSelection() {
+        mSelectedItemsIds = new SparseBooleanArray();
+        notifyDataSetChanged();
+    }
+
+    public void selectView(int position, boolean value) {
+        if (value)
+            mSelectedItemsIds.put(position, value);
+        else
+            mSelectedItemsIds.delete(position);
+    }
+
+    public SparseBooleanArray getSelectedIds() {
+        return mSelectedItemsIds;
+    }
 }
+
